@@ -1,0 +1,22 @@
+{
+  "name": "parkring-launch-video",
+  "private": true,
+  "description": "60-second launch video for parkring, rendered with Remotion",
+  "scripts": {
+    "studio": "remotion studio",
+    "still": "remotion still Launch",
+    "render": "remotion render Launch out/parkring-launch.mp4 --codec=h264 --crf=18",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.531",
+    "@remotion/google-fonts": "4.0.531",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.531"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "typescript": "5.8.3"
+  }
+}

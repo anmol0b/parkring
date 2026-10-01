@@ -62,7 +62,7 @@ description = "Bounded MPMC queues (Vyukov and SCQ), a Chase-Lev work-stealing d
 readme = "README.md"
 keywords = ["mpmc", "queue", "lock-free", "work-stealing", "futex"]
 categories = ["concurrency", "data-structures"]
-exclude = ["assets/", "docs/", ".github/", "crates/"]
+exclude = ["assets/", "docs/", ".github/", "crates/", "video/"]
 
 [lints]
 workspace = true
