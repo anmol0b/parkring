@@ -15,3 +15,18 @@ npm run still -- out/frame.png --frame=330   # one frame, for checking layout
 * Scene lengths (in frames at 30 fps) are in `SCENES` in `src/Launch.tsx`.
   Change the pacing there; the total must stay 1800 frames for 60 s.
 * Remotion is free for individuals and companies of up to three people.
+
+## Terminal demo (real commands, real output)
+
+`demo.tape` records a terminal session with [VHS](https://github.com/charmbracelet/vhs)
+(`brew install vhs`). Every command and line of output is real; the `#` lines are the
+narration. Warm the build caches first so nothing compiles on camera, then record from
+the repository root:
+
+```sh
+export CARGO_TERM_COLOR=never
+CARGO_TARGET_DIR=target/demo-mutant RUSTFLAGS='--cfg loom --cfg parkring_mutant="deque_no_pop_fence"' cargo test -q -r --lib pop_racing
+CARGO_TARGET_DIR=target/demo-loom RUSTFLAGS='--cfg loom' cargo test -q -r --lib deque
+cargo test -q -r --workspace
+vhs video/demo.tape    # writes video/out/parkring-demo.mp4 (about 80 s)
+```
