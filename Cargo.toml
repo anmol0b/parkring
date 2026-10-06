@@ -29,7 +29,7 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     "cfg(loom)",
     "cfg(parkring_force_condvar)",
     # Deliberately broken builds for mutation testing; see tests/loom_scq.rs.
-    'cfg(parkring_mutant, values("scq_conditional_threshold", "deque_no_pop_fence", "deque_no_steal_fence"))',
+    'cfg(parkring_mutant, values("scq_conditional_threshold", "deque_no_pop_fence", "deque_no_steal_fence", "channel_no_disconnect"))',
 ] }
 
 [workspace.lints.clippy]
