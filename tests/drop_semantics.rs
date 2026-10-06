@@ -9,7 +9,9 @@ use std::thread;
 
 use common::drop_counter::{DropStats, Tracked};
 use common::{TestQueue, scale};
-use parkring::{BlockingQueue, LockFreeQueue, ScqQueue};
+#[cfg(target_pointer_width = "64")]
+use parkring::ScqQueue;
+use parkring::{BlockingQueue, LockFreeQueue};
 
 fn empty_queue_drops_nothing<Q: TestQueue<Tracked>>() {
     let stats = DropStats::new();
@@ -151,4 +153,5 @@ macro_rules! drop_tests {
 
 drop_tests!(lockfree, LockFreeQueue);
 drop_tests!(blocking, BlockingQueue);
+#[cfg(target_pointer_width = "64")]
 drop_tests!(scq, ScqQueue);
