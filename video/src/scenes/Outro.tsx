@@ -13,7 +13,7 @@ export const OUTRO_DURATION = CARD_AT + 110;
 export const Outro: React.FC<{ duration: number }> = ({ duration }) => (
   <Scene duration={duration}>
     <Sequence durationInFrames={CARD_AT}>
-      <Terminal session={outro.session} seed="outro" top={360} height={260} />
+      <Terminal session={outro.session} seed="outro" top={300} height={420} />
     </Sequence>
     <Sequence from={CARD_AT}>
       <div style={{ position: "absolute", left: 160, top: 360 }}>

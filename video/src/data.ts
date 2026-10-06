@@ -222,9 +222,10 @@ export const results = {
     header: ["", "wake latency", "CPU while idle"],
     rows: [
       { who: "parkring, parked", latency: "9.4 µs", cpu: 1.7 },
+      { who: "std channel, parked", latency: "8.8 µs", cpu: 1.3 },
       { who: "crossbeam, spinning", latency: "0.3 µs", cpu: 100 },
     ],
-    caption: "and a waiting consumer actually sleeps.",
+    caption: "idle, it sleeps like a channel does. a spinning queue burns a core.",
   },
 };
 
@@ -238,11 +239,16 @@ export const losses = {
 
 export const outro = {
   session: {
-    cwd: "~",
-    command: "git clone -q https://github.com/anmol0b/parkring",
-    output: [],
+    cwd: "~/my-app",
+    command: "cargo add parkring",
+    output: [
+      line("    Updating crates.io index", "muted", { wait: 10 }),
+      line("      Adding parkring v1.0.0 to dependencies", "text", { wait: 8 }),
+      line("             Features:", "muted"),
+      line("             + std", "muted"),
+    ],
   } satisfies Session,
   name: "parkring",
   url: "github.com/anmol0b/parkring",
-  footer: "checked with loom, Miri and proptest in 17 CI jobs. MIT licensed.",
+  footer: "checked with loom, Miri, fuzzing and ThreadSanitizer. MIT licensed.",
 };

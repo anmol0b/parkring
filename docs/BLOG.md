@@ -1,6 +1,6 @@
-# From a take-home queue to a verified concurrency library
+# From a first-draft queue to a verified concurrency library
 
-*How a bounded queue written for a job application grew into **parkring**: three
+*How my first bounded queue grew into **parkring**: three
 queues, a work-stealing deque and a thread pool, each checked by a model checker
 and benchmarked against the crates people actually use. Along the way the tools
 found real bugs, including one in a published paper's algorithm.*
@@ -82,11 +82,11 @@ store and the consumer's read is an **Acquire** load. Together they guarantee th
 a consumer who sees the bumped sequence also sees the item. This one pairing is
 what the whole queue rests on.
 
-## 4. The take-home, and what was wrong with it
+## 4. The first version, and what was wrong with it
 
-I first wrote both queues as a take-home assignment: a mutex queue, a Vyukov
-queue, 20 tests that all passed, and benchmarks. When I came back to turn it
-into a real project, I audited my own submission. It had real bugs.
+My first version had both queues: a mutex queue, a Vyukov queue, 20 tests
+that all passed, and benchmarks. When I came back to turn it into a real
+project, I audited my own code. It had real bugs.
 
 **`try_push` failed when the queue was not full.** Vyukov's algorithm compares
 the sequence with the position *three ways*: equal means claim it, smaller means
