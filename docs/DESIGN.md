@@ -43,7 +43,7 @@ A producer loads `tail = p`, then `seq` of slot `p` (`Acquire`), and compares:
 
 `try_pop` mirrors this against `p + 1`, returning `Empty` only when `tail == head`.
 
-The original submission collapsed the `< 0` and `> 0` rows into "full", and also
+The first version collapsed the `< 0` and `> 0` rows into "full", and also
 reported "full" whenever it lost the CAS. Under contention, `try_push` failed on
 queues with plenty of room.
 
@@ -267,10 +267,10 @@ and it forces a lower preemption bound for the three-thread scenario; see the
 comment on that test. The native concurrent tests and Miri's weak-memory
 emulation cover what loom cannot.
 
-## 9. What the original submission got wrong
+## 9. What the first version got wrong
 
-The version submitted for the assignment (commit `76feaa4`) passed its own
-tests. The audit that led to this rewrite found:
+The first version (commit `76feaa4`, published as `bounded_mpmc_queue` 0.1)
+passed its own tests. The audit that led to this rewrite found:
 
 | Problem | Evidence | Fix |
 |---|---|---|

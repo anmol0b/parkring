@@ -4,7 +4,30 @@
 use std::sync::Mutex;
 use std::sync::mpsc::{Receiver, SyncSender, sync_channel};
 
-use parkring::{Backoff, BlockingQueue, LockFreeQueue, ScqQueue};
+use parkring::{BlockingQueue, LockFreeQueue, ScqQueue};
+
+/// The spin-then-yield wait parkring's queues use before parking (2^0..2^6 spin
+/// hints, then `yield_now`), so the never-parking baselines wait the same way.
+struct Backoff {
+    step: u32,
+}
+
+impl Backoff {
+    fn new() -> Self {
+        Self { step: 0 }
+    }
+
+    fn snooze(&mut self) {
+        if self.step <= 6 {
+            for _ in 0..1u32 << self.step {
+                std::hint::spin_loop();
+            }
+            self.step += 1;
+        } else {
+            std::thread::yield_now();
+        }
+    }
+}
 
 pub trait BenchQueue: Send + Sync + 'static {
     const NAME: &'static str;

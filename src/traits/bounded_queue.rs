@@ -8,16 +8,47 @@ use crate::error::{
 
 /// A bounded, closable, multi-producer multi-consumer FIFO queue.
 ///
-/// Construction is left to each implementation because capacity semantics
-/// differ: [`LockFreeQueue`](crate::LockFreeQueue) rounds up to a power of two (minimum 2),
-/// [`BlockingQueue`](crate::BlockingQueue) uses the exact value.
+/// Construction is left to each implementation. Every constructor takes a
+/// requested capacity and holds *at least* that many items;
+/// [`capacity`](Self::capacity) reports the actual number.
+///
+/// The trait is sealed: only this crate's queues implement it, so methods can
+/// be added in minor releases without breaking anyone.
 ///
 /// # Closing
 ///
 /// After [`close`](Self::close), every push fails and hands the item back.
 /// Pops keep returning the remaining items and fail only once the queue is
 /// both closed and empty. All blocked threads are woken by `close`.
-pub trait BoundedQueue<T: Send>: Send + Sync {
+///
+/// # Example
+///
+/// Code written against the trait runs on any of the queues:
+///
+/// ```
+/// use parkring::{BlockingQueue, BoundedQueue, LockFreeQueue};
+///
+/// fn produce_then_drain<Q: BoundedQueue<u64>>(queue: &Q) -> u64 {
+///     std::thread::scope(|s| {
+///         let consumer = s.spawn(|| {
+///             let mut sum = 0;
+///             while let Ok(v) = queue.pop() {
+///                 sum += v;
+///             }
+///             sum
+///         });
+///         for i in 1..=100 {
+///             queue.push(i).unwrap();
+///         }
+///         queue.close();
+///         consumer.join().unwrap()
+///     })
+/// }
+///
+/// assert_eq!(produce_then_drain(&LockFreeQueue::new(8)), 5050);
+/// assert_eq!(produce_then_drain(&BlockingQueue::new(8)), 5050);
+/// ```
+pub trait BoundedQueue<T: Send>: Send + Sync + sealed::Sealed {
     /// Pushes `item`, blocking while the queue is full.
     ///
     /// # Errors
@@ -61,7 +92,8 @@ pub trait BoundedQueue<T: Send>: Send + Sync {
     /// Returns `true` once [`close`](Self::close) has been called.
     fn is_closed(&self) -> bool;
 
-    /// The maximum number of items the queue holds.
+    /// The number of items the queue holds when full: at least the capacity
+    /// requested at construction.
     fn capacity(&self) -> usize;
 
     /// A snapshot of the number of items in the queue. It may be stale by the
@@ -79,9 +111,16 @@ pub trait BoundedQueue<T: Send>: Send + Sync {
     }
 }
 
+pub(crate) mod sealed {
+    /// Implemented only by this crate's queues. See [`BoundedQueue`](crate::BoundedQueue).
+    pub trait Sealed {}
+}
+
 /// Implements [`BoundedQueue`] by forwarding to inherent methods of the same name.
 macro_rules! forward_bounded_queue {
     ($ty:ident) => {
+        impl<T: Send> $crate::traits::sealed::Sealed for $ty<T> {}
+
         impl<T: Send> $crate::BoundedQueue<T> for $ty<T> {
             fn push(&self, item: T) -> Result<(), $crate::PushError<T>> {
                 $ty::push(self, item)

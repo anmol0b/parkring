@@ -182,7 +182,9 @@ impl<E: Element> Inner<E> {
         let ptr = buffer.slot(b).load(Relaxed);
         if len > 0 {
             // More than one element: no thief can reach index `b`.
-            // SAFETY: `b` was published by our own push and is now ours.
+            // SAFETY: `b` was published by our own push and is now ours. The
+            // slot is non-null: every published slot holds a pointer from
+            // `E::into_raw`, which returns a `NonNull`.
             return Some(unsafe { E::from_raw(NonNull::new_unchecked(ptr)) });
         }
         // The last element: race the thieves for it on `top`.
@@ -191,7 +193,8 @@ impl<E: Element> Inner<E> {
             .compare_exchange(t, t.wrapping_add(1), SeqCst, Relaxed)
             .is_ok();
         self.bottom.store(b.wrapping_add(1), Release);
-        // SAFETY: winning the CAS on `top` from `t == b` makes index `b` ours.
+        // SAFETY: winning the CAS on `top` from `t == b` makes index `b` ours,
+        // and its slot holds a pointer from `E::into_raw` (a `NonNull`).
         won.then(|| unsafe { E::from_raw(NonNull::new_unchecked(ptr)) })
     }
 
@@ -269,7 +272,8 @@ impl<E: Element> Drop for Inner<E> {
         while distance(b, i) > 0 {
             let ptr = buffer.slot(i).load(Relaxed);
             // SAFETY: indices in `[top, bottom)` were pushed and never taken,
-            // and the current buffer holds every one of them.
+            // and the current buffer holds every one of them, each a pointer
+            // from `E::into_raw` (so non-null).
             drop(unsafe { E::from_raw(NonNull::new_unchecked(ptr)) });
             i = i.wrapping_add(1);
         }
@@ -289,6 +293,7 @@ impl<E: Element> Drop for Inner<E> {
 
 /// The result of [`Stealer::steal`].
 #[derive(Debug, PartialEq, Eq)]
+#[must_use]
 pub enum Steal<T> {
     /// The deque was empty.
     Empty,
@@ -309,6 +314,7 @@ impl<T> Steal<T> {
     }
 
     /// `true` if the deque was empty.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         matches!(self, Self::Empty)
     }
@@ -421,6 +427,7 @@ pub struct Stealer<T: Send> {
 
 impl<T: Send> Worker<T> {
     /// Creates an empty deque.
+    #[must_use]
     pub fn new() -> Self {
         Self {
             raw: RawWorker::new(),
@@ -430,7 +437,12 @@ impl<T: Send> Worker<T> {
     /// Starts with room for `capacity` values (rounded up to a power of two)
     /// and indices near `start`, so tests can force growth and index
     /// wraparound cheaply.
+    ///
+    /// Only with the `__test-hooks` feature, which this crate's integration
+    /// tests enable. Not public API: it may change or disappear in any release.
+    #[cfg(any(test, feature = "__test-hooks"))]
     #[doc(hidden)]
+    #[must_use]
     pub fn with_capacity_and_start(capacity: usize, start: usize) -> Self {
         Self {
             raw: RawWorker::with_capacity_and_start(capacity, start),
@@ -438,6 +450,7 @@ impl<T: Send> Worker<T> {
     }
 
     /// Returns a new handle for stealing from this deque.
+    #[must_use]
     pub fn stealer(&self) -> Stealer<T> {
         Stealer {
             raw: self.raw.stealer(),
@@ -450,16 +463,19 @@ impl<T: Send> Worker<T> {
     }
 
     /// Pops the most recently pushed value, if any.
+    #[must_use]
     pub fn pop(&self) -> Option<T> {
         self.raw.pop().map(|b| *b)
     }
 
     /// A snapshot of the number of values in the deque.
+    #[must_use]
     pub fn len(&self) -> usize {
         self.raw.len()
     }
 
     /// Snapshot: `true` if the deque held no values.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
@@ -478,6 +494,7 @@ impl<T: Send> Stealer<T> {
     }
 
     /// Snapshot: `true` if the deque held no values.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.raw.is_empty()
     }

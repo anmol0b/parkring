@@ -11,6 +11,7 @@ against the established crate for the job.
 | | what it is | compared with |
 |---|---|---|
 | `LockFreeQueue` | Vyukov's bounded MPMC ring with spin-then-park waiting | crossbeam `ArrayQueue` |
+| `channel::bounded` | `Sender`/`Receiver` on that queue, disconnecting when either side drops | |
 | `ScqQueue` | Nikolaev's SCQ (DISC 2019): fetch-add claims, genuinely lock-free | the Vyukov queue |
 | `BlockingQueue` | mutex + two condvars, the reference implementation | |
 | `Worker` / `Stealer` | Chase-Lev work-stealing deque with weak-memory-correct fences | crossbeam-deque |
@@ -52,14 +53,53 @@ let pool = ThreadPool::new(4);
 assert_eq!(pool.install(|| fib(25)), 75_025);
 ```
 
+## Install
+
+```toml
+[dependencies]
+parkring = "1"
+```
+
+Runnable examples are in [`examples/`](examples): a multi-stage pipeline,
+parallel quicksort with `join`, a small work-stealing scheduler, and
+backpressure with graceful shutdown. Run one with
+`cargo run --release --example pipeline`.
+
+## Choosing a type
+
+| you want | use |
+|---|---|
+| a bounded MPMC channel that disconnects when one side drops | `channel::bounded` |
+| a bounded MPMC queue whose waiting threads sleep instead of spinning | `LockFreeQueue` |
+| a queue with a lock-free progress guarantee, and you accept lower throughput | `ScqQueue` (64-bit targets) |
+| the simplest correct queue, for reference or low traffic | `BlockingQueue` |
+| per-thread task deques for your own scheduler | `Worker` / `Stealer` |
+| fork-join parallelism (`join`, `install`, `spawn`) | `ThreadPool` |
+
+### When to use something else
+
+parkring is small and heavily verified, but the established crates are better
+in several places, and the [benchmarks](docs/BENCHMARKS.md) show where:
+
+* **Many producers or consumers at maximum throughput:** crossbeam's
+  `ArrayQueue` is 10 to 17% faster from 2 + 2 threads up, and much faster with
+  many producers feeding one consumer.
+* **`select`, zero-capacity (rendezvous) or unbounded channels:** use
+  `crossbeam-channel` or `flume`. `parkring::channel` is bounded only, with no
+  `select`.
+* **Parallel iterators, or fine-grained `join` at scale:** use Rayon. It
+  matches parkring's pool on coarse work and is faster on very fine-grained
+  joins at 8 threads.
+* **`async` code:** parkring blocks threads; it has no `async` API yet.
+
 ## What the verification found
 
 The tests were written to fail on real bugs, and they did. Each item links to
 the write-up.
 
-* **The original take-home submission** failed spuriously in `try_push`, lost
+* **The first version (0.1)** failed spuriously in `try_push`, lost
   items at non-power-of-two capacities, and spun forever when idle
-  ([DESIGN.md §9](docs/DESIGN.md#9-what-the-original-submission-got-wrong)).
+  ([DESIGN.md §9](docs/DESIGN.md#9-what-the-first-version-got-wrong)).
 * **A capacity-1 overwrite** in the Vyukov ring, found by drop accounting and
   independently by proptest, which shrank it to capacity 1 (DESIGN.md §5).
 * **A lost wakeup loom could not verify**, because loom treats `SeqCst`
@@ -89,7 +129,7 @@ Full tables and methodology: [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
 | queue, 8 + 8, `ScqQueue` | 7 | 51 (`LockFreeQueue`) |
 | deque, one thief draining | 85 | 70 (crossbeam-deque) |
 | pool, `fib(32)` on 8 threads | 1.36 ms | 1.36 ms (Rayon) |
-| parked consumer: wake latency / idle CPU | 9.4 µs / 1.7% | 0.3 µs / 100% (crossbeam, spinning) |
+| parked consumer: wake latency / idle CPU | 9.4 µs / 1.7% | 8.8 µs / 1.3% (std `sync_channel`); 0.3 µs / 100% (crossbeam `ArrayQueue`, which never parks) |
 
 The losses are reported as plainly as the wins: crossbeam's queue is faster
 under contention, and SCQ, despite its stronger progress guarantee, is 5–8×
@@ -104,22 +144,54 @@ slower than the Vyukov queue on this hardware.
 
 | | covers |
 |---|---|
-| loom | every interleaving (up to a preemption bound) of the parking protocol, close races, both queues' claims, the deque's pop/steal races, and the pool's sleep/wake; three deliberately broken builds must fail |
-| Miri | the `unsafe` code in every component: uninitialised reads, double drops, leaks, aliasing, data races, and the real `futex` system call on Linux |
+| loom | every interleaving (up to a preemption bound) of the parking protocol, close and channel-disconnect races, both queues' claims, the deque's pop/steal races, and the pool's sleep/wake; four deliberately broken builds must fail |
+| Miri | the `unsafe` code in every component: uninitialised reads, double drops, leaks, aliasing and data races, under both stacked and tree borrows, with both parkers (Linux's `futex` through Miri's emulation of it), and 16 schedules per test for the channel and the Vyukov queue |
+| fuzzing | the queues, the deque (including index wraparound) and the channel against sequential models; one minute per target on every pull request, fifteen minutes nightly |
+| ThreadSanitizer | the queue and channel tests with both parkers (TSan cannot model the deque's standalone fences; loom and Miri cover those) |
 | proptest | each queue against a `VecDeque` model (capacities 1–17), the deque against a `VecDeque` with wrapping indices |
 | concurrency tests | exactly-once delivery and per-producer FIFO across many shapes; per-thief ordering for the deque; repeated runs to flush out rare schedules |
 | `getrusage` | parked queues and an idle pool use about 35–55 µs of CPU over 300 ms |
 
 ```sh
 cargo test --workspace
-RUSTFLAGS="--cfg loom" cargo test -p parkring --release --test loom --test loom_scq --test loom_pool
+RUSTFLAGS="--cfg loom" cargo test -p parkring --release --test loom --test loom_scq --test loom_pool --test loom_channel
 RUSTFLAGS="--cfg loom" cargo test -p parkring --release --lib deque
 cargo +nightly miri test -p parkring --target x86_64-unknown-linux-gnu
 cargo bench -p parkring-bench && cargo run -p parkring-bench --release --example plot
 ```
 
-CI runs all of it on Linux, macOS and Windows, plus the MSRV, docs, a FreeBSD
-check, both parkers under loom, and the loom mutants.
+CI runs all of it on Linux, macOS and Windows, and on 32-bit and AArch64
+Linux, plus the MSRV, docs, a FreeBSD check, both parkers under loom, the loom
+mutants, cargo-deny, semver checks and the public API snapshot. The
+`unsafe` code and its invariants are listed in [UNSAFE.md](docs/UNSAFE.md).
+
+## Stability
+
+parkring follows [semver](https://semver.org/). From 1.0, these are promises:
+
+* **The public API** is exactly what `public-api.txt` lists, including which
+  types are `Send`, `Sync`, `Unpin` and unwind-safe. CI fails if it changes
+  without the file being updated, and a change that breaks it needs a major
+  release.
+* **`BoundedQueue` is sealed.** Only parkring's queues implement it, so methods
+  can be added in minor releases.
+* **Error enums and `Steal` are exhaustive**, like `std::sync::mpsc`'s and
+  crossbeam's: you can match every variant. A new kind of failure would get a
+  new type, not a new variant.
+* **Capacity:** a queue or channel holds *at least* the capacity you ask for;
+  `capacity()` reports the real number. How much it rounds up is not part of
+  the contract.
+* **`std` feature:** on by default and currently required. It exists so that
+  a future `no_std` mode can be added without breaking anyone.
+* **MSRV:** Rust 1.85. Raising it is not a breaking change, but only happens
+  in a minor release, never a patch, and is noted in the changelog. parkring
+  supports at least the last four stable Rust releases.
+* **Platforms:** tested on x86-64 Linux and Windows, AArch64 Linux and
+  macOS, and 32-bit i686 Linux;
+  `ScqQueue` exists only on 64-bit targets. Other targets with `std` use the
+  portable `Mutex` + `Condvar` parker.
+* Items marked `#[doc(hidden)]` or behind features whose names start with `__`
+  are not public API.
 
 ## Documentation
 
@@ -129,12 +201,16 @@ check, both parkers under loom, and the loom mutants.
 * [DEQUE.md](docs/DEQUE.md): the work-stealing deque and its memory orderings.
 * [POOL.md](docs/POOL.md): the thread pool.
 * [BENCHMARKS.md](docs/BENCHMARKS.md): methodology and every measurement.
+* [UNSAFE.md](docs/UNSAFE.md): every `unsafe` block, the invariant it relies
+  on, and which tool checks it.
+* [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md): how to
+  run the checks, and how to report a soundness bug privately.
 
 ## Project history
 
-This crate began as a take-home assignment, published as `bounded_mpmc_queue`:
-a mutex queue and a Vyukov queue. Version 0.2 audited that submission, fixed
-its bugs and added parking, shutdown and the verification suite. Version 0.3
+This crate began as `bounded_mpmc_queue` 0.1: a mutex queue and a Vyukov
+queue. Version 0.2 audited that first version, fixed its bugs and added
+parking, shutdown and the verification suite. Version 0.3
 renamed it to `parkring` and added futex parking, SCQ, the work-stealing deque
 and the pool. The git history shows each step.
 

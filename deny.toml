@@ -1,0 +1,26 @@
+# cargo-deny: licenses, security advisories, duplicate and unknown sources.
+# Run with `cargo deny check`.
+
+[graph]
+# Only what users build matters for licensing; the bench crate is unpublished.
+exclude-dev = true
+exclude = ["parkring-bench"]
+
+[advisories]
+version = 2
+yanked = "deny"
+
+[licenses]
+version = 2
+allow = ["MIT", "Apache-2.0"]
+confidence-threshold = 0.9
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+# The crate's dev-dependency on itself (for test hooks) is a path dependency.
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

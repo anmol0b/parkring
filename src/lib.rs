@@ -1,13 +1,19 @@
 //! Concurrency primitives built and verified from first principles: bounded
-//! MPMC queues, a work-stealing deque, and a work-stealing thread pool.
+//! MPMC queues and channels, a work-stealing deque, and a work-stealing thread
+//! pool.
 //!
 //! | | what it is |
 //! |---|---|
 //! | [`LockFreeQueue`] | Vyukov's per-slot sequence ring. The recommended queue. |
+//! | [`channel::bounded`] | [`Sender`](channel::Sender) / [`Receiver`](channel::Receiver) on a `LockFreeQueue`, disconnecting when either side drops |
 //! | [`ScqQueue`] | Nikolaev's SCQ: fetch-add claims, genuinely lock-free, slower on this hardware |
 //! | [`BlockingQueue`] | one mutex, two condvars: the reference implementation |
 //! | [`Worker`] / [`Stealer`] | Chase-Lev work-stealing deque |
 //! | [`ThreadPool`], [`join`] | a work-stealing pool built from the pieces above |
+//!
+//! For `select`, parallel iterators or `async`, use crossbeam-channel, Rayon
+//! or an async runtime's channels instead; the README's "When to use
+//! something else" section says where each one is the better choice.
 //!
 //! Blocked threads spin briefly, then park on a futex (`futex(2)` on Linux and
 //! Android, `__ulock` on macOS) or on std's `Condvar` elsewhere, so an idle
@@ -72,6 +78,14 @@
 //! assert_sync::<parkring::ScqQueue<std::rc::Rc<()>>>();
 //! ```
 //!
+//! Channel handles follow the same rule, and a non-`Send` message type is
+//! rejected:
+//!
+//! ```compile_fail
+//! fn assert_send<T: Send>() {}
+//! assert_send::<parkring::channel::Sender<std::rc::Rc<()>>>();
+//! ```
+//!
 //! A deque's [`Worker`] belongs to one thread at a time: it is `Send` but not
 //! `Sync`. [`Stealer`] is `Send + Sync`.
 //!
@@ -88,6 +102,15 @@
 //! See `docs/DESIGN.md` in the repository for the memory-ordering argument
 //! and how it is verified with loom and Miri.
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
+#[cfg(not(feature = "std"))]
+compile_error!(
+    "parkring currently requires its `std` feature, which is on by default. \
+     The feature exists so that a future `no_std` mode only adds support."
+);
+
+pub mod channel;
 mod deque;
 mod error;
 mod pool;
@@ -102,9 +125,9 @@ pub use error::{
 };
 pub use pool::{ThreadPool, join};
 #[cfg(target_pointer_width = "64")]
+#[cfg_attr(docsrs, doc(cfg(target_pointer_width = "64")))]
 pub use queue::ScqQueue;
 pub use queue::{BlockingQueue, LockFreeQueue};
-pub use sync::Backoff;
 pub use traits::BoundedQueue;
 
 /// Compiles and runs the README's code examples as doctests.

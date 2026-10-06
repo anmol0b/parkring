@@ -6,4 +6,5 @@ mod common;
 
 common::queue_tests!(lockfree, LockFreeQueue);
 common::queue_tests!(blocking, BlockingQueue);
+#[cfg(target_pointer_width = "64")]
 common::queue_tests!(scq, ScqQueue);

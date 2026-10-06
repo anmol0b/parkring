@@ -13,7 +13,7 @@ use std::sync::atomic::{AtomicBool, Ordering::Relaxed};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use parkring::{BlockingQueue, BoundedQueue, LockFreeQueue, ScqQueue};
+use parkring::{BlockingQueue, BoundedQueue, LockFreeQueue};
 
 const WINDOW: Duration = Duration::from_millis(300);
 
@@ -65,7 +65,8 @@ fn parked_consumer_is_idle<Q: BoundedQueue<u32>>(q: &Q, name: &str) {
 fn blocked_consumers_do_not_burn_cpu() {
     parked_consumer_is_idle(&LockFreeQueue::new(4), "LockFreeQueue");
     parked_consumer_is_idle(&BlockingQueue::new(4), "BlockingQueue");
-    parked_consumer_is_idle(&ScqQueue::new(4), "ScqQueue");
+    #[cfg(target_pointer_width = "64")]
+    parked_consumer_is_idle(&parkring::ScqQueue::new(4), "ScqQueue");
 }
 
 /// An idle pool's workers park too.

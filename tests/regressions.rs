@@ -1,4 +1,4 @@
-//! Regression tests for bugs in the original submission. Each one failed (or
+//! Regression tests for bugs in the first version. Each one failed (or
 //! hung) against commit 76feaa4.
 
 mod common;
@@ -7,7 +7,9 @@ use std::sync::Barrier;
 use std::thread;
 
 use common::scale;
-use parkring::{BlockingQueue, LockFreeQueue, ScqQueue, TryPushError};
+#[cfg(target_pointer_width = "64")]
+use parkring::ScqQueue;
+use parkring::{BlockingQueue, LockFreeQueue, TryPushError};
 
 /// Capacity 3 used to map positions 0,1,2 onto slots 0,1,0: three pushes were
 /// accepted and none could be popped. Capacity 6 deadlocked on the 3rd push.
@@ -96,6 +98,7 @@ fn concurrent_try_pop_never_fails_on_a_non_empty_queue() {
 /// Empty without claiming a position, and parked threads never woke. Hung in
 /// about 1 run in 4 with capacity 1 and 3 producers + 3 consumers. A watchdog
 /// turns a hang into a failure with the queue's state.
+#[cfg(target_pointer_width = "64")]
 #[test]
 #[cfg_attr(miri, ignore = "needs many rounds to hit the race")]
 fn scq_more_threads_than_capacity_never_strands_an_item() {

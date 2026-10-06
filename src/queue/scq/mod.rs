@@ -40,8 +40,9 @@ use crate::traits::forward_bounded_queue;
 ///   the price of never waiting on the popper. With one thread, `Full` and
 ///   `Empty` are exact.
 ///
-/// Capacity is rounded up to a power of two. Only available on 64-bit
-/// targets, where positions cannot wrap in practice.
+/// The queue holds at least the requested capacity (today: rounded up to a
+/// power of two; [`capacity`](Self::capacity) reports the real size). Only
+/// available on 64-bit targets, where positions cannot wrap in practice.
 ///
 /// # Example
 ///
@@ -71,11 +72,11 @@ pub struct ScqQueue<T> {
 }
 
 impl<T> ScqQueue<T> {
-    /// Creates a queue holding at least `capacity` items, rounded up to the
-    /// next power of two.
+    /// Creates a queue holding at least `capacity` items.
     ///
     /// # Panics
     /// If `capacity` is zero or larger than 2^32.
+    #[must_use]
     pub fn new(capacity: usize) -> Self {
         Self::with_start_position(capacity, None)
     }
@@ -96,7 +97,9 @@ impl<T> ScqQueue<T> {
         }
     }
 
-    /// The number of data cells (a power of two).
+    /// The number of items the queue holds when full: at least the capacity
+    /// requested in [`new`](Self::new).
+    #[must_use]
     pub fn capacity(&self) -> usize {
         self.data.len()
     }
