@@ -218,7 +218,9 @@ jobs:
           toolchain: nightly
           components: miri, rust-src
       - run: cargo miri setup
-      - run: cargo miri test -p parkring --test channel --test sequential_and_concurrent lockfree
+      # Two invocations: a name filter applies to every test binary given.
+      - run: cargo miri test -p parkring --test channel
+      - run: cargo miri test -p parkring --test sequential_and_concurrent lockfree
 
   tsan:
     name: ThreadSanitizer (${{ matrix.parker }} parker)
