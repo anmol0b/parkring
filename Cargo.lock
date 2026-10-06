@@ -415,7 +415,7 @@ checksum = "d6790f58c7ff633d8771f42965289203411a5e5c68388703c06e14f24770b41e"
 
 [[package]]
 name = "parkring"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "libc",
  "loom",
@@ -424,7 +424,7 @@ dependencies = [
 
 [[package]]
 name = "parkring-bench"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "criterion",
  "crossbeam-deque",

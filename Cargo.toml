@@ -3,14 +3,14 @@ members = [".", "crates/parkring-bench"]
 resolver = "3"
 
 [workspace.package]
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
 repository = "https://github.com/anmol0b/parkring"
 
 [workspace.dependencies]
-parkring = { path = ".", version = "0.3.0" }
+parkring = { path = ".", version = "0.4.0" }
 libc = "0.2"
 loom = "0.7"
 proptest = "1"
@@ -23,7 +23,7 @@ serde_json = "1"
 
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "deny"
-missing_docs = "warn"
+missing_docs = "deny"
 missing_debug_implementations = "warn"
 unexpected_cfgs = { level = "warn", check-cfg = [
     "cfg(loom)",
@@ -37,7 +37,6 @@ pedantic = { level = "warn", priority = -1 }
 undocumented_unsafe_blocks = "deny"
 missing_safety_doc = "deny"
 module_name_repetitions = "allow"
-must_use_candidate = "allow"
 missing_panics_doc = "allow"
 cast_possible_wrap = "allow"
 comparison_chain = "allow"  # keeps the three-way diff shaped like Vyukov's original
@@ -62,7 +61,10 @@ description = "Bounded MPMC queues (Vyukov and SCQ), a Chase-Lev work-stealing d
 readme = "README.md"
 keywords = ["mpmc", "queue", "lock-free", "work-stealing", "futex"]
 categories = ["concurrency", "data-structures"]
-exclude = ["assets/", "docs/", ".github/", "crates/"]
+exclude = ["assets/", "docs/", ".github/", "crates/", "video/"]
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu", "aarch64-apple-darwin", "x86_64-pc-windows-msvc"]
 
 [lints]
 workspace = true
