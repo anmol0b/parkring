@@ -41,9 +41,9 @@
 //! }
 //! ```
 //!
-//! Capacity follows [`LockFreeQueue::new`]: it is rounded up to a power of two,
-//! with a minimum of 2. There is no zero-capacity (rendezvous) channel and no
-//! `select`; use `std::sync::mpsc` or `crossbeam-channel` for those.
+//! A channel holds at least the capacity it was created with, like
+//! [`LockFreeQueue::new`]. There is no zero-capacity (rendezvous) channel and
+//! no `select`; use `std::sync::mpsc` or `crossbeam-channel` for those.
 
 mod error;
 
@@ -60,15 +60,15 @@ use crate::sync::{Arc, AtomicUsize, Ordering};
 
 /// Creates a channel holding at least `capacity` messages.
 ///
-/// The capacity is rounded up to a power of two, with a minimum of 2.
+/// [`Sender::capacity`] and [`Receiver::capacity`] report the actual size.
 ///
 /// # Panics
 /// If `capacity` is zero or larger than [`LockFreeQueue::new`] allows.
 ///
 /// ```
 /// let (tx, rx) = parkring::channel::bounded::<u32>(3);
-/// assert_eq!(tx.capacity(), 4);
-/// assert_eq!(rx.capacity(), 4);
+/// assert!(tx.capacity() >= 3);
+/// assert_eq!(tx.capacity(), rx.capacity());
 /// ```
 #[must_use]
 pub fn bounded<T>(capacity: usize) -> (Sender<T>, Receiver<T>) {

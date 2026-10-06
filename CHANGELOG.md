@@ -6,7 +6,26 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+Toward 1.0: the API-freeze decisions. See the README's "Stability" section.
+
+### Changed
+- **Breaking:** `BoundedQueue` is sealed. Only parkring's queues implement it,
+  so methods can be added without a major release.
+- `Worker::with_capacity_and_start`, the hidden test constructor, now exists
+  only with the `__test-hooks` feature and is gone from normal builds.
+- Capacity is documented as "at least the requested capacity"; the exact
+  rounding is no longer part of the contract.
+- `Steal` is `#[must_use]`.
+- The version is `1.0.0-rc.1` while the release is prepared.
+
 ### Added
+- A default `std` feature. It is currently required (building without it is a
+  compile error), so a future `no_std` mode will be purely additive.
+- `public-api.txt`, a snapshot of the public API and its auto traits; CI fails
+  when the API changes without the snapshot.
+- docs.rs marks `ScqQueue` as 64-bit only.
+- A "Stability" section in the README: semver, sealed trait, exhaustive
+  enums, capacity, MSRV policy and platforms.
 - `parkring::channel`: bounded multi-producer multi-consumer channels.
   `channel::bounded(n)` returns a cloneable `Sender` and `Receiver` sharing a
   `LockFreeQueue`. Dropping the last handle on one side disconnects the

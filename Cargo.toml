@@ -3,14 +3,14 @@ members = [".", "crates/parkring-bench"]
 resolver = "3"
 
 [workspace.package]
-version = "0.4.0"
+version = "1.0.0-rc.1"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
 repository = "https://github.com/anmol0b/parkring"
 
 [workspace.dependencies]
-parkring = { path = ".", version = "0.4.0" }
+parkring = { path = ".", version = "1.0.0-rc.1" }
 libc = "0.2"
 loom = "0.7"
 proptest = "1"
@@ -27,6 +27,7 @@ missing_docs = "deny"
 missing_debug_implementations = "warn"
 unexpected_cfgs = { level = "warn", check-cfg = [
     "cfg(loom)",
+    "cfg(docsrs)",
     "cfg(parkring_force_condvar)",
     # Deliberately broken builds for mutation testing; see tests/loom_scq.rs.
     'cfg(parkring_mutant, values("scq_conditional_threshold", "deque_no_pop_fence", "deque_no_steal_fence", "channel_no_disconnect"))',
@@ -65,6 +66,7 @@ exclude = ["assets/", "docs/", ".github/", "crates/", "video/"]
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu", "aarch64-apple-darwin", "x86_64-pc-windows-msvc"]
+rustdoc-args = ["--cfg", "docsrs"]
 
 [lints]
 workspace = true
@@ -79,6 +81,17 @@ libc.workspace = true
 [target.'cfg(loom)'.dependencies]
 loom.workspace = true
 
+[features]
+default = ["std"]
+# Required for now; see the crate docs. Reserved so that a future `no_std`
+# mode only adds support and breaks nobody.
+std = []
+# Test-only constructors used by this crate's own integration tests. Not
+# public API and not covered by semver.
+__test-hooks = []
+
 [dev-dependencies]
+# Turns on the test hooks for this crate's integration tests only.
+parkring = { path = ".", features = ["__test-hooks"] }
 libc.workspace = true
 proptest.workspace = true

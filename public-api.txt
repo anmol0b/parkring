@@ -1,0 +1,590 @@
+pub mod parkring
+pub mod parkring::channel
+pub enum parkring::channel::RecvTimeoutError
+pub parkring::channel::RecvTimeoutError::Disconnected
+pub parkring::channel::RecvTimeoutError::Timeout
+impl core::clone::Clone for parkring::channel::RecvTimeoutError
+pub fn parkring::channel::RecvTimeoutError::clone(&self) -> parkring::channel::RecvTimeoutError
+impl core::cmp::Eq for parkring::channel::RecvTimeoutError
+impl core::cmp::PartialEq for parkring::channel::RecvTimeoutError
+pub fn parkring::channel::RecvTimeoutError::eq(&self, &parkring::channel::RecvTimeoutError) -> bool
+impl core::error::Error for parkring::channel::RecvTimeoutError
+impl core::fmt::Debug for parkring::channel::RecvTimeoutError
+pub fn parkring::channel::RecvTimeoutError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for parkring::channel::RecvTimeoutError
+pub fn parkring::channel::RecvTimeoutError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for parkring::channel::RecvTimeoutError
+impl core::marker::StructuralPartialEq for parkring::channel::RecvTimeoutError
+impl core::marker::Freeze for parkring::channel::RecvTimeoutError
+impl core::marker::Send for parkring::channel::RecvTimeoutError
+impl core::marker::Sync for parkring::channel::RecvTimeoutError
+impl core::marker::Unpin for parkring::channel::RecvTimeoutError
+impl core::panic::unwind_safe::RefUnwindSafe for parkring::channel::RecvTimeoutError
+impl core::panic::unwind_safe::UnwindSafe for parkring::channel::RecvTimeoutError
+pub enum parkring::channel::SendTimeoutError<T>
+pub parkring::channel::SendTimeoutError::Disconnected(T)
+pub parkring::channel::SendTimeoutError::Timeout(T)
+impl<T> parkring::channel::SendTimeoutError<T>
+pub fn parkring::channel::SendTimeoutError<T>::into_inner(self) -> T
+pub fn parkring::channel::SendTimeoutError<T>::is_disconnected(&self) -> bool
+pub fn parkring::channel::SendTimeoutError<T>::is_timeout(&self) -> bool
+impl<T: core::clone::Clone> core::clone::Clone for parkring::channel::SendTimeoutError<T>
+pub fn parkring::channel::SendTimeoutError<T>::clone(&self) -> parkring::channel::SendTimeoutError<T>
+impl<T: core::cmp::Eq> core::cmp::Eq for parkring::channel::SendTimeoutError<T>
+impl<T: core::cmp::PartialEq> core::cmp::PartialEq for parkring::channel::SendTimeoutError<T>
+pub fn parkring::channel::SendTimeoutError<T>::eq(&self, &parkring::channel::SendTimeoutError<T>) -> bool
+impl<T: core::marker::Copy> core::marker::Copy for parkring::channel::SendTimeoutError<T>
+impl<T> core::error::Error for parkring::channel::SendTimeoutError<T>
+impl<T> core::fmt::Debug for parkring::channel::SendTimeoutError<T>
+pub fn parkring::channel::SendTimeoutError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::fmt::Display for parkring::channel::SendTimeoutError<T>
+pub fn parkring::channel::SendTimeoutError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::marker::StructuralPartialEq for parkring::channel::SendTimeoutError<T>
+impl<T> core::marker::Freeze for parkring::channel::SendTimeoutError<T> where T: core::marker::Freeze
+impl<T> core::marker::Send for parkring::channel::SendTimeoutError<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::channel::SendTimeoutError<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for parkring::channel::SendTimeoutError<T> where T: core::marker::Unpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for parkring::channel::SendTimeoutError<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for parkring::channel::SendTimeoutError<T> where T: core::panic::unwind_safe::UnwindSafe
+pub enum parkring::channel::TryRecvError
+pub parkring::channel::TryRecvError::Disconnected
+pub parkring::channel::TryRecvError::Empty
+impl core::clone::Clone for parkring::channel::TryRecvError
+pub fn parkring::channel::TryRecvError::clone(&self) -> parkring::channel::TryRecvError
+impl core::cmp::Eq for parkring::channel::TryRecvError
+impl core::cmp::PartialEq for parkring::channel::TryRecvError
+pub fn parkring::channel::TryRecvError::eq(&self, &parkring::channel::TryRecvError) -> bool
+impl core::error::Error for parkring::channel::TryRecvError
+impl core::fmt::Debug for parkring::channel::TryRecvError
+pub fn parkring::channel::TryRecvError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for parkring::channel::TryRecvError
+pub fn parkring::channel::TryRecvError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for parkring::channel::TryRecvError
+impl core::marker::StructuralPartialEq for parkring::channel::TryRecvError
+impl core::marker::Freeze for parkring::channel::TryRecvError
+impl core::marker::Send for parkring::channel::TryRecvError
+impl core::marker::Sync for parkring::channel::TryRecvError
+impl core::marker::Unpin for parkring::channel::TryRecvError
+impl core::panic::unwind_safe::RefUnwindSafe for parkring::channel::TryRecvError
+impl core::panic::unwind_safe::UnwindSafe for parkring::channel::TryRecvError
+pub enum parkring::channel::TrySendError<T>
+pub parkring::channel::TrySendError::Disconnected(T)
+pub parkring::channel::TrySendError::Full(T)
+impl<T> parkring::channel::TrySendError<T>
+pub fn parkring::channel::TrySendError<T>::into_inner(self) -> T
+pub fn parkring::channel::TrySendError<T>::is_disconnected(&self) -> bool
+pub fn parkring::channel::TrySendError<T>::is_full(&self) -> bool
+impl<T: core::clone::Clone> core::clone::Clone for parkring::channel::TrySendError<T>
+pub fn parkring::channel::TrySendError<T>::clone(&self) -> parkring::channel::TrySendError<T>
+impl<T: core::cmp::Eq> core::cmp::Eq for parkring::channel::TrySendError<T>
+impl<T: core::cmp::PartialEq> core::cmp::PartialEq for parkring::channel::TrySendError<T>
+pub fn parkring::channel::TrySendError<T>::eq(&self, &parkring::channel::TrySendError<T>) -> bool
+impl<T: core::marker::Copy> core::marker::Copy for parkring::channel::TrySendError<T>
+impl<T> core::error::Error for parkring::channel::TrySendError<T>
+impl<T> core::fmt::Debug for parkring::channel::TrySendError<T>
+pub fn parkring::channel::TrySendError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::fmt::Display for parkring::channel::TrySendError<T>
+pub fn parkring::channel::TrySendError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::marker::StructuralPartialEq for parkring::channel::TrySendError<T>
+impl<T> core::marker::Freeze for parkring::channel::TrySendError<T> where T: core::marker::Freeze
+impl<T> core::marker::Send for parkring::channel::TrySendError<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::channel::TrySendError<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for parkring::channel::TrySendError<T> where T: core::marker::Unpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for parkring::channel::TrySendError<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for parkring::channel::TrySendError<T> where T: core::panic::unwind_safe::UnwindSafe
+pub struct parkring::channel::IntoIter<T>
+impl<T: core::fmt::Debug> core::fmt::Debug for parkring::channel::IntoIter<T>
+pub fn parkring::channel::IntoIter<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::iter::traits::iterator::Iterator for parkring::channel::IntoIter<T>
+pub type parkring::channel::IntoIter<T>::Item = T
+pub fn parkring::channel::IntoIter<T>::next(&mut self) -> core::option::Option<T>
+impl<T> core::marker::Freeze for parkring::channel::IntoIter<T>
+impl<T> core::marker::Send for parkring::channel::IntoIter<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::channel::IntoIter<T> where T: core::marker::Send
+impl<T> core::marker::Unpin for parkring::channel::IntoIter<T>
+impl<T> !core::panic::unwind_safe::RefUnwindSafe for parkring::channel::IntoIter<T>
+impl<T> !core::panic::unwind_safe::UnwindSafe for parkring::channel::IntoIter<T>
+pub struct parkring::channel::Iter<'a, T>
+impl<'a, T: core::fmt::Debug> core::fmt::Debug for parkring::channel::Iter<'a, T>
+pub fn parkring::channel::Iter<'a, T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::iter::traits::iterator::Iterator for parkring::channel::Iter<'_, T>
+pub type parkring::channel::Iter<'_, T>::Item = T
+pub fn parkring::channel::Iter<'_, T>::next(&mut self) -> core::option::Option<T>
+impl<'a, T> core::marker::Freeze for parkring::channel::Iter<'a, T>
+impl<'a, T> core::marker::Send for parkring::channel::Iter<'a, T> where T: core::marker::Send
+impl<'a, T> core::marker::Sync for parkring::channel::Iter<'a, T> where T: core::marker::Send
+impl<'a, T> core::marker::Unpin for parkring::channel::Iter<'a, T>
+impl<'a, T> !core::panic::unwind_safe::RefUnwindSafe for parkring::channel::Iter<'a, T>
+impl<'a, T> !core::panic::unwind_safe::UnwindSafe for parkring::channel::Iter<'a, T>
+pub struct parkring::channel::Receiver<T>
+impl<T> parkring::channel::Receiver<T>
+pub fn parkring::channel::Receiver<T>::capacity(&self) -> usize
+pub fn parkring::channel::Receiver<T>::is_disconnected(&self) -> bool
+pub fn parkring::channel::Receiver<T>::is_empty(&self) -> bool
+pub fn parkring::channel::Receiver<T>::is_full(&self) -> bool
+pub fn parkring::channel::Receiver<T>::iter(&self) -> parkring::channel::Iter<'_, T>
+pub fn parkring::channel::Receiver<T>::len(&self) -> usize
+pub fn parkring::channel::Receiver<T>::recv(&self) -> core::result::Result<T, parkring::channel::RecvError>
+pub fn parkring::channel::Receiver<T>::recv_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::channel::RecvTimeoutError>
+pub fn parkring::channel::Receiver<T>::try_iter(&self) -> parkring::channel::TryIter<'_, T>
+pub fn parkring::channel::Receiver<T>::try_recv(&self) -> core::result::Result<T, parkring::channel::TryRecvError>
+impl<'a, T> core::iter::traits::collect::IntoIterator for &'a parkring::channel::Receiver<T>
+pub type &'a parkring::channel::Receiver<T>::IntoIter = parkring::channel::Iter<'a, T>
+pub type &'a parkring::channel::Receiver<T>::Item = T
+pub fn &'a parkring::channel::Receiver<T>::into_iter(self) -> parkring::channel::Iter<'a, T>
+impl<T> core::clone::Clone for parkring::channel::Receiver<T>
+pub fn parkring::channel::Receiver<T>::clone(&self) -> Self
+impl<T> core::fmt::Debug for parkring::channel::Receiver<T>
+pub fn parkring::channel::Receiver<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::iter::traits::collect::IntoIterator for parkring::channel::Receiver<T>
+pub type parkring::channel::Receiver<T>::IntoIter = parkring::channel::IntoIter<T>
+pub type parkring::channel::Receiver<T>::Item = T
+pub fn parkring::channel::Receiver<T>::into_iter(self) -> parkring::channel::IntoIter<T>
+impl<T> core::ops::drop::Drop for parkring::channel::Receiver<T>
+pub fn parkring::channel::Receiver<T>::drop(&mut self)
+impl<T> core::marker::Freeze for parkring::channel::Receiver<T>
+impl<T> core::marker::Send for parkring::channel::Receiver<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::channel::Receiver<T> where T: core::marker::Send
+impl<T> core::marker::Unpin for parkring::channel::Receiver<T>
+impl<T> !core::panic::unwind_safe::RefUnwindSafe for parkring::channel::Receiver<T>
+impl<T> !core::panic::unwind_safe::UnwindSafe for parkring::channel::Receiver<T>
+pub struct parkring::channel::RecvError
+impl core::clone::Clone for parkring::channel::RecvError
+pub fn parkring::channel::RecvError::clone(&self) -> parkring::channel::RecvError
+impl core::cmp::Eq for parkring::channel::RecvError
+impl core::cmp::PartialEq for parkring::channel::RecvError
+pub fn parkring::channel::RecvError::eq(&self, &parkring::channel::RecvError) -> bool
+impl core::error::Error for parkring::channel::RecvError
+impl core::fmt::Debug for parkring::channel::RecvError
+pub fn parkring::channel::RecvError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for parkring::channel::RecvError
+pub fn parkring::channel::RecvError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for parkring::channel::RecvError
+impl core::marker::StructuralPartialEq for parkring::channel::RecvError
+impl core::marker::Freeze for parkring::channel::RecvError
+impl core::marker::Send for parkring::channel::RecvError
+impl core::marker::Sync for parkring::channel::RecvError
+impl core::marker::Unpin for parkring::channel::RecvError
+impl core::panic::unwind_safe::RefUnwindSafe for parkring::channel::RecvError
+impl core::panic::unwind_safe::UnwindSafe for parkring::channel::RecvError
+pub struct parkring::channel::SendError<T>(pub T)
+impl<T> parkring::channel::SendError<T>
+pub fn parkring::channel::SendError<T>::into_inner(self) -> T
+impl<T: core::clone::Clone> core::clone::Clone for parkring::channel::SendError<T>
+pub fn parkring::channel::SendError<T>::clone(&self) -> parkring::channel::SendError<T>
+impl<T: core::cmp::Eq> core::cmp::Eq for parkring::channel::SendError<T>
+impl<T: core::cmp::PartialEq> core::cmp::PartialEq for parkring::channel::SendError<T>
+pub fn parkring::channel::SendError<T>::eq(&self, &parkring::channel::SendError<T>) -> bool
+impl<T: core::marker::Copy> core::marker::Copy for parkring::channel::SendError<T>
+impl<T> core::error::Error for parkring::channel::SendError<T>
+impl<T> core::fmt::Debug for parkring::channel::SendError<T>
+pub fn parkring::channel::SendError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::fmt::Display for parkring::channel::SendError<T>
+pub fn parkring::channel::SendError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::marker::StructuralPartialEq for parkring::channel::SendError<T>
+impl<T> core::marker::Freeze for parkring::channel::SendError<T> where T: core::marker::Freeze
+impl<T> core::marker::Send for parkring::channel::SendError<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::channel::SendError<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for parkring::channel::SendError<T> where T: core::marker::Unpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for parkring::channel::SendError<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for parkring::channel::SendError<T> where T: core::panic::unwind_safe::UnwindSafe
+pub struct parkring::channel::Sender<T>
+impl<T> parkring::channel::Sender<T>
+pub fn parkring::channel::Sender<T>::capacity(&self) -> usize
+pub fn parkring::channel::Sender<T>::is_disconnected(&self) -> bool
+pub fn parkring::channel::Sender<T>::is_empty(&self) -> bool
+pub fn parkring::channel::Sender<T>::is_full(&self) -> bool
+pub fn parkring::channel::Sender<T>::len(&self) -> usize
+pub fn parkring::channel::Sender<T>::send(&self, T) -> core::result::Result<(), parkring::channel::SendError<T>>
+pub fn parkring::channel::Sender<T>::send_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::channel::SendTimeoutError<T>>
+pub fn parkring::channel::Sender<T>::try_send(&self, T) -> core::result::Result<(), parkring::channel::TrySendError<T>>
+impl<T> core::clone::Clone for parkring::channel::Sender<T>
+pub fn parkring::channel::Sender<T>::clone(&self) -> Self
+impl<T> core::fmt::Debug for parkring::channel::Sender<T>
+pub fn parkring::channel::Sender<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::ops::drop::Drop for parkring::channel::Sender<T>
+pub fn parkring::channel::Sender<T>::drop(&mut self)
+impl<T> core::marker::Freeze for parkring::channel::Sender<T>
+impl<T> core::marker::Send for parkring::channel::Sender<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::channel::Sender<T> where T: core::marker::Send
+impl<T> core::marker::Unpin for parkring::channel::Sender<T>
+impl<T> !core::panic::unwind_safe::RefUnwindSafe for parkring::channel::Sender<T>
+impl<T> !core::panic::unwind_safe::UnwindSafe for parkring::channel::Sender<T>
+pub struct parkring::channel::TryIter<'a, T>
+impl<'a, T: core::fmt::Debug> core::fmt::Debug for parkring::channel::TryIter<'a, T>
+pub fn parkring::channel::TryIter<'a, T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::iter::traits::iterator::Iterator for parkring::channel::TryIter<'_, T>
+pub type parkring::channel::TryIter<'_, T>::Item = T
+pub fn parkring::channel::TryIter<'_, T>::next(&mut self) -> core::option::Option<T>
+impl<'a, T> core::marker::Freeze for parkring::channel::TryIter<'a, T>
+impl<'a, T> core::marker::Send for parkring::channel::TryIter<'a, T> where T: core::marker::Send
+impl<'a, T> core::marker::Sync for parkring::channel::TryIter<'a, T> where T: core::marker::Send
+impl<'a, T> core::marker::Unpin for parkring::channel::TryIter<'a, T>
+impl<'a, T> !core::panic::unwind_safe::RefUnwindSafe for parkring::channel::TryIter<'a, T>
+impl<'a, T> !core::panic::unwind_safe::UnwindSafe for parkring::channel::TryIter<'a, T>
+pub fn parkring::channel::bounded<T>(usize) -> (parkring::channel::Sender<T>, parkring::channel::Receiver<T>)
+pub enum parkring::PopTimeoutError
+pub parkring::PopTimeoutError::Closed
+pub parkring::PopTimeoutError::Timeout
+impl core::clone::Clone for parkring::PopTimeoutError
+pub fn parkring::PopTimeoutError::clone(&self) -> parkring::PopTimeoutError
+impl core::cmp::Eq for parkring::PopTimeoutError
+impl core::cmp::PartialEq for parkring::PopTimeoutError
+pub fn parkring::PopTimeoutError::eq(&self, &parkring::PopTimeoutError) -> bool
+impl core::error::Error for parkring::PopTimeoutError
+impl core::fmt::Debug for parkring::PopTimeoutError
+pub fn parkring::PopTimeoutError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for parkring::PopTimeoutError
+pub fn parkring::PopTimeoutError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for parkring::PopTimeoutError
+impl core::marker::StructuralPartialEq for parkring::PopTimeoutError
+impl core::marker::Freeze for parkring::PopTimeoutError
+impl core::marker::Send for parkring::PopTimeoutError
+impl core::marker::Sync for parkring::PopTimeoutError
+impl core::marker::Unpin for parkring::PopTimeoutError
+impl core::panic::unwind_safe::RefUnwindSafe for parkring::PopTimeoutError
+impl core::panic::unwind_safe::UnwindSafe for parkring::PopTimeoutError
+pub enum parkring::PushTimeoutError<T>
+pub parkring::PushTimeoutError::Closed(T)
+pub parkring::PushTimeoutError::Timeout(T)
+impl<T> parkring::PushTimeoutError<T>
+pub fn parkring::PushTimeoutError<T>::into_inner(self) -> T
+pub fn parkring::PushTimeoutError<T>::is_closed(&self) -> bool
+pub fn parkring::PushTimeoutError<T>::is_timeout(&self) -> bool
+impl<T: core::clone::Clone> core::clone::Clone for parkring::PushTimeoutError<T>
+pub fn parkring::PushTimeoutError<T>::clone(&self) -> parkring::PushTimeoutError<T>
+impl<T: core::cmp::Eq> core::cmp::Eq for parkring::PushTimeoutError<T>
+impl<T: core::cmp::PartialEq> core::cmp::PartialEq for parkring::PushTimeoutError<T>
+pub fn parkring::PushTimeoutError<T>::eq(&self, &parkring::PushTimeoutError<T>) -> bool
+impl<T: core::marker::Copy> core::marker::Copy for parkring::PushTimeoutError<T>
+impl<T> core::error::Error for parkring::PushTimeoutError<T>
+impl<T> core::fmt::Debug for parkring::PushTimeoutError<T>
+pub fn parkring::PushTimeoutError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::fmt::Display for parkring::PushTimeoutError<T>
+pub fn parkring::PushTimeoutError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::marker::StructuralPartialEq for parkring::PushTimeoutError<T>
+impl<T> core::marker::Freeze for parkring::PushTimeoutError<T> where T: core::marker::Freeze
+impl<T> core::marker::Send for parkring::PushTimeoutError<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::PushTimeoutError<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for parkring::PushTimeoutError<T> where T: core::marker::Unpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for parkring::PushTimeoutError<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for parkring::PushTimeoutError<T> where T: core::panic::unwind_safe::UnwindSafe
+pub enum parkring::Steal<T>
+pub parkring::Steal::Empty
+pub parkring::Steal::Retry
+pub parkring::Steal::Success(T)
+impl<T> parkring::Steal<T>
+pub fn parkring::Steal<T>::is_empty(&self) -> bool
+pub fn parkring::Steal<T>::is_retry(&self) -> bool
+pub fn parkring::Steal<T>::success(self) -> core::option::Option<T>
+impl<T: core::cmp::Eq> core::cmp::Eq for parkring::Steal<T>
+impl<T: core::cmp::PartialEq> core::cmp::PartialEq for parkring::Steal<T>
+pub fn parkring::Steal<T>::eq(&self, &parkring::Steal<T>) -> bool
+impl<T: core::fmt::Debug> core::fmt::Debug for parkring::Steal<T>
+pub fn parkring::Steal<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::marker::StructuralPartialEq for parkring::Steal<T>
+impl<T> core::marker::Freeze for parkring::Steal<T> where T: core::marker::Freeze
+impl<T> core::marker::Send for parkring::Steal<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::Steal<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for parkring::Steal<T> where T: core::marker::Unpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for parkring::Steal<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for parkring::Steal<T> where T: core::panic::unwind_safe::UnwindSafe
+pub enum parkring::TryPopError
+pub parkring::TryPopError::Closed
+pub parkring::TryPopError::Empty
+impl core::clone::Clone for parkring::TryPopError
+pub fn parkring::TryPopError::clone(&self) -> parkring::TryPopError
+impl core::cmp::Eq for parkring::TryPopError
+impl core::cmp::PartialEq for parkring::TryPopError
+pub fn parkring::TryPopError::eq(&self, &parkring::TryPopError) -> bool
+impl core::error::Error for parkring::TryPopError
+impl core::fmt::Debug for parkring::TryPopError
+pub fn parkring::TryPopError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for parkring::TryPopError
+pub fn parkring::TryPopError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for parkring::TryPopError
+impl core::marker::StructuralPartialEq for parkring::TryPopError
+impl core::marker::Freeze for parkring::TryPopError
+impl core::marker::Send for parkring::TryPopError
+impl core::marker::Sync for parkring::TryPopError
+impl core::marker::Unpin for parkring::TryPopError
+impl core::panic::unwind_safe::RefUnwindSafe for parkring::TryPopError
+impl core::panic::unwind_safe::UnwindSafe for parkring::TryPopError
+pub enum parkring::TryPushError<T>
+pub parkring::TryPushError::Closed(T)
+pub parkring::TryPushError::Full(T)
+impl<T> parkring::TryPushError<T>
+pub fn parkring::TryPushError<T>::into_inner(self) -> T
+pub fn parkring::TryPushError<T>::is_closed(&self) -> bool
+pub fn parkring::TryPushError<T>::is_full(&self) -> bool
+impl<T: core::clone::Clone> core::clone::Clone for parkring::TryPushError<T>
+pub fn parkring::TryPushError<T>::clone(&self) -> parkring::TryPushError<T>
+impl<T: core::cmp::Eq> core::cmp::Eq for parkring::TryPushError<T>
+impl<T: core::cmp::PartialEq> core::cmp::PartialEq for parkring::TryPushError<T>
+pub fn parkring::TryPushError<T>::eq(&self, &parkring::TryPushError<T>) -> bool
+impl<T: core::marker::Copy> core::marker::Copy for parkring::TryPushError<T>
+impl<T> core::error::Error for parkring::TryPushError<T>
+impl<T> core::fmt::Debug for parkring::TryPushError<T>
+pub fn parkring::TryPushError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::fmt::Display for parkring::TryPushError<T>
+pub fn parkring::TryPushError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::marker::StructuralPartialEq for parkring::TryPushError<T>
+impl<T> core::marker::Freeze for parkring::TryPushError<T> where T: core::marker::Freeze
+impl<T> core::marker::Send for parkring::TryPushError<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::TryPushError<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for parkring::TryPushError<T> where T: core::marker::Unpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for parkring::TryPushError<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for parkring::TryPushError<T> where T: core::panic::unwind_safe::UnwindSafe
+pub struct parkring::BlockingQueue<T>
+impl<T> parkring::BlockingQueue<T>
+pub fn parkring::BlockingQueue<T>::capacity(&self) -> usize
+pub fn parkring::BlockingQueue<T>::close(&self) -> bool
+pub fn parkring::BlockingQueue<T>::is_closed(&self) -> bool
+pub fn parkring::BlockingQueue<T>::is_empty(&self) -> bool
+pub fn parkring::BlockingQueue<T>::is_full(&self) -> bool
+pub fn parkring::BlockingQueue<T>::len(&self) -> usize
+pub fn parkring::BlockingQueue<T>::new(usize) -> Self
+pub fn parkring::BlockingQueue<T>::pop(&self) -> core::result::Result<T, parkring::PopError>
+pub fn parkring::BlockingQueue<T>::pop_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::PopTimeoutError>
+pub fn parkring::BlockingQueue<T>::push(&self, T) -> core::result::Result<(), parkring::PushError<T>>
+pub fn parkring::BlockingQueue<T>::push_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::PushTimeoutError<T>>
+pub fn parkring::BlockingQueue<T>::try_pop(&self) -> core::result::Result<T, parkring::TryPopError>
+pub fn parkring::BlockingQueue<T>::try_push(&self, T) -> core::result::Result<(), parkring::TryPushError<T>>
+impl<T: core::marker::Send> parkring::BoundedQueue<T> for parkring::BlockingQueue<T>
+pub fn parkring::BlockingQueue<T>::capacity(&self) -> usize
+pub fn parkring::BlockingQueue<T>::close(&self) -> bool
+pub fn parkring::BlockingQueue<T>::is_closed(&self) -> bool
+pub fn parkring::BlockingQueue<T>::is_empty(&self) -> bool
+pub fn parkring::BlockingQueue<T>::is_full(&self) -> bool
+pub fn parkring::BlockingQueue<T>::len(&self) -> usize
+pub fn parkring::BlockingQueue<T>::pop(&self) -> core::result::Result<T, parkring::PopError>
+pub fn parkring::BlockingQueue<T>::pop_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::PopTimeoutError>
+pub fn parkring::BlockingQueue<T>::push(&self, T) -> core::result::Result<(), parkring::PushError<T>>
+pub fn parkring::BlockingQueue<T>::push_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::PushTimeoutError<T>>
+pub fn parkring::BlockingQueue<T>::try_pop(&self) -> core::result::Result<T, parkring::TryPopError>
+pub fn parkring::BlockingQueue<T>::try_push(&self, T) -> core::result::Result<(), parkring::TryPushError<T>>
+impl<T> core::fmt::Debug for parkring::BlockingQueue<T>
+pub fn parkring::BlockingQueue<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> !core::marker::Freeze for parkring::BlockingQueue<T>
+impl<T> core::marker::Send for parkring::BlockingQueue<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::BlockingQueue<T> where T: core::marker::Send
+impl<T> core::marker::Unpin for parkring::BlockingQueue<T>
+impl<T> core::panic::unwind_safe::RefUnwindSafe for parkring::BlockingQueue<T>
+impl<T> core::panic::unwind_safe::UnwindSafe for parkring::BlockingQueue<T>
+pub struct parkring::LockFreeQueue<T>
+impl<T> parkring::LockFreeQueue<T>
+pub fn parkring::LockFreeQueue<T>::capacity(&self) -> usize
+pub fn parkring::LockFreeQueue<T>::close(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::is_closed(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::is_empty(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::is_full(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::len(&self) -> usize
+pub fn parkring::LockFreeQueue<T>::new(usize) -> Self
+pub fn parkring::LockFreeQueue<T>::pop(&self) -> core::result::Result<T, parkring::PopError>
+pub fn parkring::LockFreeQueue<T>::pop_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::PopTimeoutError>
+pub fn parkring::LockFreeQueue<T>::push(&self, T) -> core::result::Result<(), parkring::PushError<T>>
+pub fn parkring::LockFreeQueue<T>::push_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::PushTimeoutError<T>>
+pub fn parkring::LockFreeQueue<T>::try_pop(&self) -> core::result::Result<T, parkring::TryPopError>
+pub fn parkring::LockFreeQueue<T>::try_push(&self, T) -> core::result::Result<(), parkring::TryPushError<T>>
+impl<T: core::marker::Send> parkring::BoundedQueue<T> for parkring::LockFreeQueue<T>
+pub fn parkring::LockFreeQueue<T>::capacity(&self) -> usize
+pub fn parkring::LockFreeQueue<T>::close(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::is_closed(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::is_empty(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::is_full(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::len(&self) -> usize
+pub fn parkring::LockFreeQueue<T>::pop(&self) -> core::result::Result<T, parkring::PopError>
+pub fn parkring::LockFreeQueue<T>::pop_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::PopTimeoutError>
+pub fn parkring::LockFreeQueue<T>::push(&self, T) -> core::result::Result<(), parkring::PushError<T>>
+pub fn parkring::LockFreeQueue<T>::push_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::PushTimeoutError<T>>
+pub fn parkring::LockFreeQueue<T>::try_pop(&self) -> core::result::Result<T, parkring::TryPopError>
+pub fn parkring::LockFreeQueue<T>::try_push(&self, T) -> core::result::Result<(), parkring::TryPushError<T>>
+impl<T> core::fmt::Debug for parkring::LockFreeQueue<T>
+pub fn parkring::LockFreeQueue<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::ops::drop::Drop for parkring::LockFreeQueue<T>
+pub fn parkring::LockFreeQueue<T>::drop(&mut self)
+impl<T> !core::marker::Freeze for parkring::LockFreeQueue<T>
+impl<T> core::marker::Send for parkring::LockFreeQueue<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::LockFreeQueue<T> where T: core::marker::Send
+impl<T> core::marker::Unpin for parkring::LockFreeQueue<T>
+impl<T> !core::panic::unwind_safe::RefUnwindSafe for parkring::LockFreeQueue<T>
+impl<T> core::panic::unwind_safe::UnwindSafe for parkring::LockFreeQueue<T> where T: core::panic::unwind_safe::UnwindSafe
+pub struct parkring::PopError
+impl core::clone::Clone for parkring::PopError
+pub fn parkring::PopError::clone(&self) -> parkring::PopError
+impl core::cmp::Eq for parkring::PopError
+impl core::cmp::PartialEq for parkring::PopError
+pub fn parkring::PopError::eq(&self, &parkring::PopError) -> bool
+impl core::error::Error for parkring::PopError
+impl core::fmt::Debug for parkring::PopError
+pub fn parkring::PopError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for parkring::PopError
+pub fn parkring::PopError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for parkring::PopError
+impl core::marker::StructuralPartialEq for parkring::PopError
+impl core::marker::Freeze for parkring::PopError
+impl core::marker::Send for parkring::PopError
+impl core::marker::Sync for parkring::PopError
+impl core::marker::Unpin for parkring::PopError
+impl core::panic::unwind_safe::RefUnwindSafe for parkring::PopError
+impl core::panic::unwind_safe::UnwindSafe for parkring::PopError
+pub struct parkring::PushError<T>(pub T)
+impl<T> parkring::PushError<T>
+pub fn parkring::PushError<T>::into_inner(self) -> T
+impl<T: core::clone::Clone> core::clone::Clone for parkring::PushError<T>
+pub fn parkring::PushError<T>::clone(&self) -> parkring::PushError<T>
+impl<T: core::cmp::Eq> core::cmp::Eq for parkring::PushError<T>
+impl<T: core::cmp::PartialEq> core::cmp::PartialEq for parkring::PushError<T>
+pub fn parkring::PushError<T>::eq(&self, &parkring::PushError<T>) -> bool
+impl<T: core::marker::Copy> core::marker::Copy for parkring::PushError<T>
+impl<T> core::error::Error for parkring::PushError<T>
+impl<T> core::fmt::Debug for parkring::PushError<T>
+pub fn parkring::PushError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::fmt::Display for parkring::PushError<T>
+pub fn parkring::PushError<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::marker::StructuralPartialEq for parkring::PushError<T>
+impl<T> core::marker::Freeze for parkring::PushError<T> where T: core::marker::Freeze
+impl<T> core::marker::Send for parkring::PushError<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::PushError<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for parkring::PushError<T> where T: core::marker::Unpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for parkring::PushError<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for parkring::PushError<T> where T: core::panic::unwind_safe::UnwindSafe
+pub struct parkring::ScqQueue<T>
+impl<T> parkring::ScqQueue<T>
+pub fn parkring::ScqQueue<T>::capacity(&self) -> usize
+pub fn parkring::ScqQueue<T>::close(&self) -> bool
+pub fn parkring::ScqQueue<T>::is_closed(&self) -> bool
+pub fn parkring::ScqQueue<T>::is_empty(&self) -> bool
+pub fn parkring::ScqQueue<T>::is_full(&self) -> bool
+pub fn parkring::ScqQueue<T>::len(&self) -> usize
+pub fn parkring::ScqQueue<T>::new(usize) -> Self
+pub fn parkring::ScqQueue<T>::pop(&self) -> core::result::Result<T, parkring::PopError>
+pub fn parkring::ScqQueue<T>::pop_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::PopTimeoutError>
+pub fn parkring::ScqQueue<T>::push(&self, T) -> core::result::Result<(), parkring::PushError<T>>
+pub fn parkring::ScqQueue<T>::push_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::PushTimeoutError<T>>
+pub fn parkring::ScqQueue<T>::try_pop(&self) -> core::result::Result<T, parkring::TryPopError>
+pub fn parkring::ScqQueue<T>::try_push(&self, T) -> core::result::Result<(), parkring::TryPushError<T>>
+impl<T: core::marker::Send> parkring::BoundedQueue<T> for parkring::ScqQueue<T>
+pub fn parkring::ScqQueue<T>::capacity(&self) -> usize
+pub fn parkring::ScqQueue<T>::close(&self) -> bool
+pub fn parkring::ScqQueue<T>::is_closed(&self) -> bool
+pub fn parkring::ScqQueue<T>::is_empty(&self) -> bool
+pub fn parkring::ScqQueue<T>::is_full(&self) -> bool
+pub fn parkring::ScqQueue<T>::len(&self) -> usize
+pub fn parkring::ScqQueue<T>::pop(&self) -> core::result::Result<T, parkring::PopError>
+pub fn parkring::ScqQueue<T>::pop_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::PopTimeoutError>
+pub fn parkring::ScqQueue<T>::push(&self, T) -> core::result::Result<(), parkring::PushError<T>>
+pub fn parkring::ScqQueue<T>::push_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::PushTimeoutError<T>>
+pub fn parkring::ScqQueue<T>::try_pop(&self) -> core::result::Result<T, parkring::TryPopError>
+pub fn parkring::ScqQueue<T>::try_push(&self, T) -> core::result::Result<(), parkring::TryPushError<T>>
+impl<T> core::fmt::Debug for parkring::ScqQueue<T>
+pub fn parkring::ScqQueue<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::ops::drop::Drop for parkring::ScqQueue<T>
+pub fn parkring::ScqQueue<T>::drop(&mut self)
+impl<T> !core::marker::Freeze for parkring::ScqQueue<T>
+impl<T> core::marker::Send for parkring::ScqQueue<T> where T: core::marker::Send
+impl<T> core::marker::Sync for parkring::ScqQueue<T> where T: core::marker::Send
+impl<T> core::marker::Unpin for parkring::ScqQueue<T>
+impl<T> !core::panic::unwind_safe::RefUnwindSafe for parkring::ScqQueue<T>
+impl<T> core::panic::unwind_safe::UnwindSafe for parkring::ScqQueue<T> where T: core::panic::unwind_safe::UnwindSafe
+pub struct parkring::Stealer<T: core::marker::Send>
+impl<T: core::marker::Send> parkring::Stealer<T>
+pub fn parkring::Stealer<T>::is_empty(&self) -> bool
+pub fn parkring::Stealer<T>::steal(&self) -> parkring::Steal<T>
+impl<T: core::marker::Send> core::clone::Clone for parkring::Stealer<T>
+pub fn parkring::Stealer<T>::clone(&self) -> Self
+impl<T: core::marker::Send> core::fmt::Debug for parkring::Stealer<T>
+pub fn parkring::Stealer<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::marker::Freeze for parkring::Stealer<T>
+impl<T> core::marker::Send for parkring::Stealer<T>
+impl<T> core::marker::Sync for parkring::Stealer<T>
+impl<T> core::marker::Unpin for parkring::Stealer<T>
+impl<T> !core::panic::unwind_safe::RefUnwindSafe for parkring::Stealer<T>
+impl<T> !core::panic::unwind_safe::UnwindSafe for parkring::Stealer<T>
+pub struct parkring::ThreadPool
+impl parkring::ThreadPool
+pub fn parkring::ThreadPool::install<F, R>(&self, F) -> R where F: core::ops::function::FnOnce() -> R + core::marker::Send, R: core::marker::Send
+pub fn parkring::ThreadPool::new(usize) -> Self
+pub fn parkring::ThreadPool::spawn<F>(&self, F) where F: core::ops::function::FnOnce() + core::marker::Send + 'static
+pub fn parkring::ThreadPool::threads(&self) -> usize
+impl core::fmt::Debug for parkring::ThreadPool
+pub fn parkring::ThreadPool::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::ops::drop::Drop for parkring::ThreadPool
+pub fn parkring::ThreadPool::drop(&mut self)
+impl core::marker::Freeze for parkring::ThreadPool
+impl core::marker::Send for parkring::ThreadPool
+impl core::marker::Sync for parkring::ThreadPool
+impl core::marker::Unpin for parkring::ThreadPool
+impl !core::panic::unwind_safe::RefUnwindSafe for parkring::ThreadPool
+impl !core::panic::unwind_safe::UnwindSafe for parkring::ThreadPool
+pub struct parkring::Worker<T: core::marker::Send>
+impl<T: core::marker::Send> parkring::Worker<T>
+pub fn parkring::Worker<T>::is_empty(&self) -> bool
+pub fn parkring::Worker<T>::len(&self) -> usize
+pub fn parkring::Worker<T>::new() -> Self
+pub fn parkring::Worker<T>::pop(&self) -> core::option::Option<T>
+pub fn parkring::Worker<T>::push(&self, T)
+pub fn parkring::Worker<T>::stealer(&self) -> parkring::Stealer<T>
+impl<T: core::marker::Send> core::default::Default for parkring::Worker<T>
+pub fn parkring::Worker<T>::default() -> Self
+impl<T: core::marker::Send> core::fmt::Debug for parkring::Worker<T>
+pub fn parkring::Worker<T>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::marker::Freeze for parkring::Worker<T>
+impl<T> core::marker::Send for parkring::Worker<T>
+impl<T> !core::marker::Sync for parkring::Worker<T>
+impl<T> core::marker::Unpin for parkring::Worker<T>
+impl<T> !core::panic::unwind_safe::RefUnwindSafe for parkring::Worker<T>
+impl<T> !core::panic::unwind_safe::UnwindSafe for parkring::Worker<T>
+pub trait parkring::BoundedQueue<T: core::marker::Send>: core::marker::Send + core::marker::Sync + parkring::traits::bounded_queue::sealed::Sealed
+pub fn parkring::BoundedQueue::capacity(&self) -> usize
+pub fn parkring::BoundedQueue::close(&self) -> bool
+pub fn parkring::BoundedQueue::is_closed(&self) -> bool
+pub fn parkring::BoundedQueue::is_empty(&self) -> bool
+pub fn parkring::BoundedQueue::is_full(&self) -> bool
+pub fn parkring::BoundedQueue::len(&self) -> usize
+pub fn parkring::BoundedQueue::pop(&self) -> core::result::Result<T, parkring::PopError>
+pub fn parkring::BoundedQueue::pop_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::PopTimeoutError>
+pub fn parkring::BoundedQueue::push(&self, T) -> core::result::Result<(), parkring::PushError<T>>
+pub fn parkring::BoundedQueue::push_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::PushTimeoutError<T>>
+pub fn parkring::BoundedQueue::try_pop(&self) -> core::result::Result<T, parkring::TryPopError>
+pub fn parkring::BoundedQueue::try_push(&self, T) -> core::result::Result<(), parkring::TryPushError<T>>
+impl<T: core::marker::Send> parkring::BoundedQueue<T> for parkring::BlockingQueue<T>
+pub fn parkring::BlockingQueue<T>::capacity(&self) -> usize
+pub fn parkring::BlockingQueue<T>::close(&self) -> bool
+pub fn parkring::BlockingQueue<T>::is_closed(&self) -> bool
+pub fn parkring::BlockingQueue<T>::is_empty(&self) -> bool
+pub fn parkring::BlockingQueue<T>::is_full(&self) -> bool
+pub fn parkring::BlockingQueue<T>::len(&self) -> usize
+pub fn parkring::BlockingQueue<T>::pop(&self) -> core::result::Result<T, parkring::PopError>
+pub fn parkring::BlockingQueue<T>::pop_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::PopTimeoutError>
+pub fn parkring::BlockingQueue<T>::push(&self, T) -> core::result::Result<(), parkring::PushError<T>>
+pub fn parkring::BlockingQueue<T>::push_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::PushTimeoutError<T>>
+pub fn parkring::BlockingQueue<T>::try_pop(&self) -> core::result::Result<T, parkring::TryPopError>
+pub fn parkring::BlockingQueue<T>::try_push(&self, T) -> core::result::Result<(), parkring::TryPushError<T>>
+impl<T: core::marker::Send> parkring::BoundedQueue<T> for parkring::LockFreeQueue<T>
+pub fn parkring::LockFreeQueue<T>::capacity(&self) -> usize
+pub fn parkring::LockFreeQueue<T>::close(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::is_closed(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::is_empty(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::is_full(&self) -> bool
+pub fn parkring::LockFreeQueue<T>::len(&self) -> usize
+pub fn parkring::LockFreeQueue<T>::pop(&self) -> core::result::Result<T, parkring::PopError>
+pub fn parkring::LockFreeQueue<T>::pop_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::PopTimeoutError>
+pub fn parkring::LockFreeQueue<T>::push(&self, T) -> core::result::Result<(), parkring::PushError<T>>
+pub fn parkring::LockFreeQueue<T>::push_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::PushTimeoutError<T>>
+pub fn parkring::LockFreeQueue<T>::try_pop(&self) -> core::result::Result<T, parkring::TryPopError>
+pub fn parkring::LockFreeQueue<T>::try_push(&self, T) -> core::result::Result<(), parkring::TryPushError<T>>
+impl<T: core::marker::Send> parkring::BoundedQueue<T> for parkring::ScqQueue<T>
+pub fn parkring::ScqQueue<T>::capacity(&self) -> usize
+pub fn parkring::ScqQueue<T>::close(&self) -> bool
+pub fn parkring::ScqQueue<T>::is_closed(&self) -> bool
+pub fn parkring::ScqQueue<T>::is_empty(&self) -> bool
+pub fn parkring::ScqQueue<T>::is_full(&self) -> bool
+pub fn parkring::ScqQueue<T>::len(&self) -> usize
+pub fn parkring::ScqQueue<T>::pop(&self) -> core::result::Result<T, parkring::PopError>
+pub fn parkring::ScqQueue<T>::pop_timeout(&self, core::time::Duration) -> core::result::Result<T, parkring::PopTimeoutError>
+pub fn parkring::ScqQueue<T>::push(&self, T) -> core::result::Result<(), parkring::PushError<T>>
+pub fn parkring::ScqQueue<T>::push_timeout(&self, T, core::time::Duration) -> core::result::Result<(), parkring::PushTimeoutError<T>>
+pub fn parkring::ScqQueue<T>::try_pop(&self) -> core::result::Result<T, parkring::TryPopError>
+pub fn parkring::ScqQueue<T>::try_push(&self, T) -> core::result::Result<(), parkring::TryPushError<T>>
+pub fn parkring::join<A, B, RA, RB>(A, B) -> (RA, RB) where A: core::ops::function::FnOnce() -> RA + core::marker::Send, B: core::ops::function::FnOnce() -> RB + core::marker::Send, RA: core::marker::Send, RB: core::marker::Send
