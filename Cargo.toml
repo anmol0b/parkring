@@ -14,7 +14,7 @@ parkring = { path = ".", version = "1.0.0" }
 libc = "0.2"
 loom = "0.7"
 proptest = "1"
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion = { version = "0.7", features = ["html_reports"] }
 crossbeam-queue = "0.3"
 crossbeam-deque = "0.8"
 rayon = "1"

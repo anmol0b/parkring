@@ -9,7 +9,9 @@
 
 use std::time::Duration;
 
-use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
+use std::hint::black_box;
+
+use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 
 const FIB_N: u64 = 25;
 const FIB_CUTOFF_N: u64 = 32;
