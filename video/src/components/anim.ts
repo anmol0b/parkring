@@ -1,21 +1,32 @@
-import { interpolate, spring } from "remotion";
+import { Easing, interpolate, random } from "remotion";
 import { FPS } from "../theme";
 
-/** 0 → 1 over `duration` frames starting at `start`, clamped. */
-export const ramp = (frame: number, start: number, duration: number) =>
+/** 0 to 1 over `duration` frames starting at `start`, clamped and eased. */
+export const ramp = (frame: number, start: number, duration: number, easing = Easing.out(Easing.cubic)) =>
   interpolate(frame, [start, start + duration], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
+    easing,
   });
 
-/** A gentle spring starting at `start`. */
-export const pop = (frame: number, start: number) =>
-  spring({ frame: frame - start, fps: FPS, config: { damping: 200, mass: 0.6 } });
+/**
+ * The frame each character of `text` lands on when typed by hand from `start`:
+ * about `cps` characters a second, with uneven gaps and a pause after spaces.
+ */
+export const keystrokes = (text: string, start: number, seed: string, cps = 26): number[] => {
+  const base = FPS / cps;
+  const frames: number[] = [];
+  let t = start;
+  for (let i = 0; i < text.length; i++) {
+    t += base * (0.45 + random(`${seed}-${i}`) * 1.1);
+    if (text[i - 1] === " ") t += base * 0.6;
+    frames.push(Math.round(t));
+  }
+  return frames;
+};
 
-/** Characters of `text` revealed at `cps` characters per second from `start`. */
-export const typed = (text: string, frame: number, start: number, cps = 40) =>
-  text.slice(0, Math.max(0, Math.floor(((frame - start) / FPS) * cps)));
+/** How many characters are visible at `frame`, given the frames from `keystrokes`. */
+export const typedCount = (frames: number[], frame: number) => frames.filter((f) => f <= frame).length;
 
-/** Fade out over the last `duration` frames of a scene of length `total`. */
-export const fadeOut = (frame: number, total: number, duration = 10) =>
-  1 - ramp(frame, total - duration, duration);
+/** A block cursor that blinks every half second. */
+export const blink = (frame: number) => Math.floor(frame / 15) % 2 === 0;

@@ -2,30 +2,30 @@ import React from "react";
 import { Sequence, useCurrentFrame } from "remotion";
 import { Caption } from "../components/Caption";
 import { Scene } from "../components/Scene";
-import { fadeOut, pop, ramp } from "../components/anim";
+import { ramp } from "../components/anim";
 import { results, type Bar } from "../data";
 import { colors, fonts } from "../theme";
 
-const BAR_MAX = 900;
+const NAME_W = 400;
+const PX_PER_UNIT = 11; // 100 M items/s = 1100 px
 
 const BarRow: React.FC<{ bar: Bar; start: number }> = ({ bar, start }) => {
   const frame = useCurrentFrame();
-  const grow = pop(frame, start);
-  const max = Math.max(bar.ours, bar.theirs);
+  const grow = ramp(frame, start, 22);
   const row = (who: string, value: number, color: string) => (
-    <div style={{ display: "flex", alignItems: "center", gap: 20, height: 46 }}>
-      <div style={{ width: 300, fontFamily: fonts.mono, fontSize: 26, color: colors.muted, textAlign: "right" }}>
+    <div style={{ display: "flex", alignItems: "center", height: 54 }}>
+      <div style={{ width: NAME_W, paddingRight: 20, textAlign: "right", fontFamily: fonts.mono, fontSize: 26, color: colors.muted }}>
         {who}
       </div>
-      <div style={{ height: 38, width: (BAR_MAX * value * grow) / max, background: color, borderRadius: 6 }} />
-      <div style={{ fontFamily: fonts.mono, fontWeight: 700, fontSize: 30, color, opacity: grow }}>
-        {value} {bar.unit}
+      <div style={{ height: 38, width: value * PX_PER_UNIT * grow, background: color, borderRadius: 2 }} />
+      <div style={{ marginLeft: 14, fontFamily: fonts.mono, fontSize: 26, color: colors.text, opacity: ramp(frame, start + 16, 6) }}>
+        {value}
       </div>
     </div>
   );
   return (
-    <div style={{ opacity: ramp(frame, start, 6) }}>
-      <div style={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: 36, color: colors.text, marginBottom: 10 }}>
+    <div style={{ opacity: ramp(frame, start - 4, 4) }}>
+      <div style={{ marginLeft: NAME_W, fontFamily: fonts.sans, fontWeight: 500, fontSize: 32, color: colors.text, marginBottom: 8 }}>
         {bar.label}
       </div>
       {row("parkring", bar.ours, colors.ours)}
@@ -34,58 +34,81 @@ const BarRow: React.FC<{ bar: Bar; start: number }> = ({ bar, start }) => {
   );
 };
 
-const BARS_PART = 210;
-
-const Idle: React.FC = () => {
+const Bars: React.FC = () => {
   const frame = useCurrentFrame();
-  const p = pop(frame, 0);
-  const meter = (label: string, latency: string, cpu: number, color: string, start: number) => {
-    const g = pop(frame, start);
-    return (
-      <div style={{ flex: 1 }}>
-        <div style={{ fontFamily: fonts.sans, fontWeight: 800, fontSize: 44, color }}>{label}</div>
-        <div style={{ fontFamily: fonts.mono, fontSize: 34, color: colors.text, marginTop: 18 }}>
-          wakes in <b style={{ color }}>{latency}</b>
-        </div>
-        <div style={{ fontFamily: fonts.mono, fontSize: 34, color: colors.text, marginTop: 30 }}>
-          CPU while idle: <b style={{ color }}>{Math.round(cpu * g * 10) / 10}%</b>
-        </div>
-        <div style={{ marginTop: 16, height: 30, width: 640, background: colors.border, borderRadius: 6 }}>
-          <div style={{ height: 30, width: 6.4 * cpu * g, background: color, borderRadius: 6 }} />
-        </div>
-      </div>
-    );
-  };
+  const { pool } = results;
   return (
-    <div style={{ opacity: p }}>
-      <div style={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: 40, color: colors.muted, marginBottom: 50 }}>
-        {results.idle.note}
+    <div style={{ position: "absolute", top: 150, left: 76 }}>
+      <div style={{ marginLeft: NAME_W, fontFamily: fonts.mono, fontSize: 22, color: colors.dim, marginBottom: 40 }}>
+        {results.axis}
       </div>
-      <div style={{ display: "flex", gap: 80 }}>
-        {meter("parkring parks", results.idle.ours.latency, results.idle.ours.cpu, colors.ours, 15)}
-        {meter("crossbeam + spin", results.idle.spin.latency, results.idle.spin.cpu, colors.theirs, 35)}
+      <div style={{ position: "absolute", top: 80, bottom: 0, left: NAME_W - 1, width: 1, background: colors.border }} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 44 }}>
+        {results.bars.map((bar, i) => (
+          <BarRow key={bar.label} bar={bar} start={10 + i * 34} />
+        ))}
+        <div style={{ marginLeft: NAME_W, opacity: ramp(frame, 90, 5) }}>
+          <div style={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: 32, color: colors.text, marginBottom: 12 }}>
+            {pool.label}
+          </div>
+          <div style={{ fontFamily: fonts.mono, fontSize: 26, color: colors.muted }}>
+            <span style={{ color: colors.ours }}>parkring</span> {pool.ours}
+            {"     "}
+            <span style={{ color: colors.theirs }}>{pool.them}</span> {pool.theirs}
+            {"     "}
+            <span style={{ color: colors.text }}>a tie.</span>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export const Results: React.FC<{ duration: number }> = ({ duration }) => {
+const Idle: React.FC = () => {
   const frame = useCurrentFrame();
+  const { header, rows } = results.idle;
+  const cell = (w: number, content: React.ReactNode, color: string = colors.text) => (
+    <div style={{ width: w, color }}>{content}</div>
+  );
   return (
-    <Scene duration={duration} padding={110}>
-      <Caption text={results.caption} size={60} />
-      <div style={{ position: "relative", marginTop: 50, height: 700 }}>
-        <Sequence durationInFrames={BARS_PART} layout="none">
-          <div style={{ display: "flex", flexDirection: "column", gap: 40, opacity: fadeOut(frame, BARS_PART) }}>
-            {results.bars.map((bar, i) => (
-              <BarRow key={bar.label} bar={bar} start={15 + i * 30} />
-            ))}
-          </div>
-        </Sequence>
-        <Sequence from={BARS_PART} layout="none">
-          <Idle />
-        </Sequence>
+    <div style={{ position: "absolute", top: 300, left: 76, fontFamily: fonts.mono, fontSize: 34 }}>
+      <div style={{ display: "flex", color: colors.dim, fontSize: 24, marginBottom: 28 }}>
+        {cell(440, header[0], colors.dim)}
+        {cell(320, header[1], colors.dim)}
+        {cell(700, header[2], colors.dim)}
       </div>
-    </Scene>
+      {rows.map((r, i) => {
+        const g = ramp(frame, 8 + i * 22, 30);
+        const color = i === 0 ? colors.ours : colors.theirs;
+        return (
+          <div key={r.who} style={{ display: "flex", alignItems: "center", height: 100, opacity: ramp(frame, 4 + i * 22, 4) }}>
+            {cell(440, r.who, color)}
+            {cell(320, r.latency)}
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <div style={{ width: 110, textAlign: "right", color: colors.text }}>{`${Math.round(r.cpu * g * 10) / 10}%`}</div>
+              <div style={{ width: 600, height: 20, background: colors.border }}>
+                <div style={{ width: 6 * r.cpu * g, height: 20, background: color }} />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 };
+
+const BARS_PART = 175;
+export const RESULTS_DURATION = BARS_PART + 135;
+
+export const Results: React.FC<{ duration: number }> = ({ duration }) => (
+  <Scene duration={duration}>
+    <Sequence durationInFrames={BARS_PART}>
+      <Bars />
+      <Caption text={results.caption} start={4} />
+    </Sequence>
+    <Sequence from={BARS_PART}>
+      <Idle />
+      <Caption text={results.idle.caption} start={40} />
+    </Sequence>
+  </Scene>
+);

@@ -1,29 +1,35 @@
 import React from "react";
 import { useCurrentFrame } from "remotion";
 import { colors, fonts } from "../theme";
-import { pop } from "./anim";
+import { ramp } from "./anim";
 
-export const Caption: React.FC<{ text: string; start?: number; size?: number; color?: string }> = ({
+/**
+ * A lower-left caption under the main shot. `then` is a second sentence that
+ * appears at frame `thenAt`, in the muted color.
+ */
+export const Caption: React.FC<{ text: string; start?: number; then?: string; thenAt?: number }> = ({
   text,
   start = 0,
-  size = 64,
-  color = colors.text,
+  then,
+  thenAt = 0,
 }) => {
   const frame = useCurrentFrame();
-  const p = pop(frame, start);
   return (
     <div
       style={{
+        position: "absolute",
+        left: 76,
+        right: 76,
+        bottom: 66,
         fontFamily: fonts.sans,
-        fontWeight: 800,
-        fontSize: size,
-        color,
-        letterSpacing: -1,
-        opacity: p,
-        transform: `translateY(${(1 - p) * 24}px)`,
+        fontWeight: 500,
+        fontSize: 44,
+        letterSpacing: -0.4,
+        color: colors.text,
       }}
     >
-      {text}
+      <span style={{ opacity: ramp(frame, start, 5) }}>{text}</span>
+      {then && <span style={{ color: colors.muted, opacity: ramp(frame, thenAt, 5) }}> {then}</span>}
     </div>
   );
 };

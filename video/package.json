@@ -1,11 +1,12 @@
 {
   "name": "parkring-launch-video",
   "private": true,
-  "description": "60-second launch video for parkring, rendered with Remotion",
+  "description": "Launch video for parkring, rendered with Remotion",
   "scripts": {
     "studio": "remotion studio",
     "still": "remotion still Launch",
-    "render": "remotion render Launch out/parkring-launch.mp4 --codec=h264 --crf=18",
+    "lint:copy": "! grep -rnE '—|–' src",
+    "render": "npm run lint:copy && remotion render Launch out/parkring-launch.mp4 --codec=h264 --crf=18",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

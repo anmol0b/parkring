@@ -1,19 +1,11 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { colors } from "../theme";
-import { fadeOut, ramp } from "./anim";
+import { ramp } from "./anim";
 
-/** Full-frame scene with a short fade in and out. `duration` is the scene's length in frames. */
-export const Scene: React.FC<{ duration: number; children: React.ReactNode; padding?: number }> = ({
-  duration,
-  children,
-  padding = 120,
-}) => {
+/** Full-frame scene. Cuts are near-hard: a 3-frame fade at each end. */
+export const Scene: React.FC<{ duration: number; children: React.ReactNode }> = ({ duration, children }) => {
   const frame = useCurrentFrame();
-  const opacity = Math.min(ramp(frame, 0, 8), fadeOut(frame, duration));
-  return (
-    <AbsoluteFill style={{ background: colors.bg, padding, justifyContent: "center", opacity }}>
-      {children}
-    </AbsoluteFill>
-  );
+  const opacity = Math.min(ramp(frame, 0, 3), 1 - ramp(frame, duration - 3, 3));
+  return <AbsoluteFill style={{ background: colors.bg, opacity }}>{children}</AbsoluteFill>;
 };
