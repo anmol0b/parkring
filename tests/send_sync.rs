@@ -21,6 +21,15 @@ fn queues_are_send_and_sync_for_send_items() {
 fn assert_send<T: Send>() {}
 
 #[test]
+fn channel_handles_are_send_and_sync_for_send_messages() {
+    use parkring::channel::{Receiver, Sender};
+    assert_send_sync::<Sender<String>>();
+    assert_send_sync::<Receiver<String>>();
+    assert_send_sync::<Sender<Cell<u32>>>();
+    assert_send_sync::<Receiver<Cell<u32>>>();
+}
+
+#[test]
 fn deque_handles_have_the_right_auto_traits() {
     assert_send::<Worker<String>>();
     assert_send_sync::<Stealer<String>>();

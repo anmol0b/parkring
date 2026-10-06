@@ -4,7 +4,24 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.4.0] - Unreleased
+## [Unreleased]
+
+### Added
+- `parkring::channel`: bounded multi-producer multi-consumer channels.
+  `channel::bounded(n)` returns a cloneable `Sender` and `Receiver` sharing a
+  `LockFreeQueue`. Dropping the last handle on one side disconnects the
+  channel: receivers drain what was sent and then get `RecvError`; senders get
+  their message back in `SendError`. Errors, `try_*` and `*_timeout` variants,
+  and iterators follow `std::sync::mpsc` and `crossbeam-channel` naming.
+- loom models for disconnect races (`tests/loom_channel.rs`), run under both
+  parkers, and a `channel_no_disconnect` mutant that CI requires loom to catch.
+- The channel tests also run under Miri in CI.
+
+### Changed
+- The `pipeline` example uses channels, so shutdown follows from dropping
+  senders instead of a hand-written counter.
+
+## [0.4.0] - 2026-10-06
 
 The first release prepared for crates.io. No behaviour changes; the public
 API is trimmed and documented so it can be kept stable.
