@@ -1,0 +1,37 @@
+[package]
+name = "parkring-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+arbitrary = { version = "1", features = ["derive"] }
+libfuzzer-sys = "0.4"
+parkring = { path = "..", features = ["__test-hooks"] }
+
+# Not part of the main workspace: cargo-fuzz builds it with its own flags.
+[workspace]
+
+[[bin]]
+name = "queue"
+path = "fuzz_targets/queue.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "deque"
+path = "fuzz_targets/deque.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "channel"
+path = "fuzz_targets/channel.rs"
+test = false
+doc = false
+bench = false
