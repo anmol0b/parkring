@@ -4,7 +4,9 @@
 mod common;
 
 use common::{mpmc_exactly_once_and_ordered as check, scale};
-use parkring::{BlockingQueue, LockFreeQueue, ScqQueue};
+#[cfg(target_pointer_width = "64")]
+use parkring::ScqQueue;
+use parkring::{BlockingQueue, LockFreeQueue};
 
 const SHAPES: [(usize, usize); 6] = [(1, 1), (2, 1), (1, 2), (4, 4), (8, 2), (2, 8)];
 const CAPACITIES: [usize; 4] = [1, 2, 16, 1024];
@@ -43,6 +45,7 @@ fn lockfree_small_under_miri() {
     check::<LockFreeQueue<u64>>(2, 2, 2, scale(500), true);
 }
 
+#[cfg(target_pointer_width = "64")]
 #[test]
 #[cfg_attr(
     miri,
@@ -57,6 +60,7 @@ fn scq_grid() {
     }
 }
 
+#[cfg(target_pointer_width = "64")]
 #[test]
 fn scq_small_under_miri() {
     check::<ScqQueue<u64>>(2, 2, 2, scale(500), false);

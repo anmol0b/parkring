@@ -3,7 +3,7 @@
 
 use std::cell::Cell;
 
-use parkring::{BlockingQueue, BoundedQueue, LockFreeQueue, ScqQueue, Stealer, Worker};
+use parkring::{BlockingQueue, BoundedQueue, LockFreeQueue, Stealer, Worker};
 
 fn assert_send_sync<T: Send + Sync>() {}
 
@@ -14,8 +14,11 @@ fn queues_are_send_and_sync_for_send_items() {
     // `T: Send` is enough: items are moved between threads, never shared.
     assert_send_sync::<LockFreeQueue<Cell<u32>>>();
     assert_send_sync::<BlockingQueue<Cell<u32>>>();
-    assert_send_sync::<ScqQueue<String>>();
-    assert_send_sync::<ScqQueue<Cell<u32>>>();
+    #[cfg(target_pointer_width = "64")]
+    {
+        assert_send_sync::<parkring::ScqQueue<String>>();
+        assert_send_sync::<parkring::ScqQueue<Cell<u32>>>();
+    }
 }
 
 fn assert_send<T: Send>() {}
