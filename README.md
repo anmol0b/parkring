@@ -11,6 +11,7 @@ against the established crate for the job.
 | | what it is | compared with |
 |---|---|---|
 | `LockFreeQueue` | Vyukov's bounded MPMC ring with spin-then-park waiting | crossbeam `ArrayQueue` |
+| `channel::bounded` | `Sender`/`Receiver` on that queue, disconnecting when either side drops | |
 | `ScqQueue` | Nikolaev's SCQ (DISC 2019): fetch-add claims, genuinely lock-free | the Vyukov queue |
 | `BlockingQueue` | mutex + two condvars, the reference implementation | |
 | `Worker` / `Stealer` | Chase-Lev work-stealing deque with weak-memory-correct fences | crossbeam-deque |
@@ -68,6 +69,7 @@ backpressure with graceful shutdown. Run one with
 
 | you want | use |
 |---|---|
+| a bounded MPMC channel that disconnects when one side drops | `channel::bounded` |
 | a bounded MPMC queue whose waiting threads sleep instead of spinning | `LockFreeQueue` |
 | a queue with a lock-free progress guarantee, and you accept lower throughput | `ScqQueue` (64-bit targets) |
 | the simplest correct queue, for reference or low traffic | `BlockingQueue` |
@@ -82,9 +84,9 @@ in several places, and the [benchmarks](docs/BENCHMARKS.md) show where:
 * **Many producers or consumers at maximum throughput:** crossbeam's
   `ArrayQueue` is 10 to 17% faster from 2 + 2 threads up, and much faster with
   many producers feeding one consumer.
-* **A channel API** (`Sender`/`Receiver`, disconnect on drop, `select`): use
-  `std::sync::mpsc`, `crossbeam-channel` or `flume`. parkring's queues are
-  shared by reference and shut down with `close`.
+* **`select`, zero-capacity (rendezvous) or unbounded channels:** use
+  `crossbeam-channel` or `flume`. `parkring::channel` is bounded only, with no
+  `select`.
 * **Parallel iterators, or fine-grained `join` at scale:** use Rayon. It
   matches parkring's pool on coarse work and is faster on very fine-grained
   joins at 8 threads.
@@ -142,7 +144,7 @@ slower than the Vyukov queue on this hardware.
 
 | | covers |
 |---|---|
-| loom | every interleaving (up to a preemption bound) of the parking protocol, close races, both queues' claims, the deque's pop/steal races, and the pool's sleep/wake; three deliberately broken builds must fail |
+| loom | every interleaving (up to a preemption bound) of the parking protocol, close and channel-disconnect races, both queues' claims, the deque's pop/steal races, and the pool's sleep/wake; four deliberately broken builds must fail |
 | Miri | the `unsafe` code in every component: uninitialised reads, double drops, leaks, aliasing, data races, and the real `futex` system call on Linux |
 | proptest | each queue against a `VecDeque` model (capacities 1–17), the deque against a `VecDeque` with wrapping indices |
 | concurrency tests | exactly-once delivery and per-producer FIFO across many shapes; per-thief ordering for the deque; repeated runs to flush out rare schedules |
@@ -150,7 +152,7 @@ slower than the Vyukov queue on this hardware.
 
 ```sh
 cargo test --workspace
-RUSTFLAGS="--cfg loom" cargo test -p parkring --release --test loom --test loom_scq --test loom_pool
+RUSTFLAGS="--cfg loom" cargo test -p parkring --release --test loom --test loom_scq --test loom_pool --test loom_channel
 RUSTFLAGS="--cfg loom" cargo test -p parkring --release --lib deque
 cargo +nightly miri test -p parkring --target x86_64-unknown-linux-gnu
 cargo bench -p parkring-bench && cargo run -p parkring-bench --release --example plot
