@@ -309,6 +309,7 @@ impl<T> Steal<T> {
     }
 
     /// `true` if the deque was empty.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         matches!(self, Self::Empty)
     }
@@ -421,6 +422,7 @@ pub struct Stealer<T: Send> {
 
 impl<T: Send> Worker<T> {
     /// Creates an empty deque.
+    #[must_use]
     pub fn new() -> Self {
         Self {
             raw: RawWorker::new(),
@@ -430,7 +432,11 @@ impl<T: Send> Worker<T> {
     /// Starts with room for `capacity` values (rounded up to a power of two)
     /// and indices near `start`, so tests can force growth and index
     /// wraparound cheaply.
+    ///
+    /// Not part of the public API: it exists for this crate's tests and may
+    /// change or disappear in any release.
     #[doc(hidden)]
+    #[must_use]
     pub fn with_capacity_and_start(capacity: usize, start: usize) -> Self {
         Self {
             raw: RawWorker::with_capacity_and_start(capacity, start),
@@ -438,6 +444,7 @@ impl<T: Send> Worker<T> {
     }
 
     /// Returns a new handle for stealing from this deque.
+    #[must_use]
     pub fn stealer(&self) -> Stealer<T> {
         Stealer {
             raw: self.raw.stealer(),
@@ -450,16 +457,19 @@ impl<T: Send> Worker<T> {
     }
 
     /// Pops the most recently pushed value, if any.
+    #[must_use]
     pub fn pop(&self) -> Option<T> {
         self.raw.pop().map(|b| *b)
     }
 
     /// A snapshot of the number of values in the deque.
+    #[must_use]
     pub fn len(&self) -> usize {
         self.raw.len()
     }
 
     /// Snapshot: `true` if the deque held no values.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
@@ -473,11 +483,13 @@ impl<T: Send> Default for Worker<T> {
 
 impl<T: Send> Stealer<T> {
     /// Steals the oldest value.
+    #[must_use]
     pub fn steal(&self) -> Steal<T> {
         self.raw.steal().map(|b| *b)
     }
 
     /// Snapshot: `true` if the deque held no values.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.raw.is_empty()
     }

@@ -5,6 +5,7 @@
 use std::path::{Path, PathBuf};
 
 /// The workspace root, where `target/` and `assets/` live.
+#[must_use]
 pub fn workspace_root() -> PathBuf {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     root.canonicalize().unwrap_or(root)

@@ -50,6 +50,7 @@ impl<T> BlockingQueue<T> {
     ///
     /// # Panics
     /// If `capacity` is zero.
+    #[must_use]
     pub fn new(capacity: usize) -> Self {
         Self {
             inner: Mutex::new(Inner {

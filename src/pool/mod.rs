@@ -276,6 +276,7 @@ impl ThreadPool {
     }
 
     /// The number of worker threads.
+    #[must_use]
     pub fn threads(&self) -> usize {
         self.threads.len()
     }
