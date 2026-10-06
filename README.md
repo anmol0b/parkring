@@ -52,6 +52,44 @@ let pool = ThreadPool::new(4);
 assert_eq!(pool.install(|| fib(25)), 75_025);
 ```
 
+## Install
+
+```toml
+[dependencies]
+parkring = "0.4"
+```
+
+Runnable examples are in [`examples/`](examples): a multi-stage pipeline,
+parallel quicksort with `join`, a small work-stealing scheduler, and
+backpressure with graceful shutdown. Run one with
+`cargo run --release --example pipeline`.
+
+## Choosing a type
+
+| you want | use |
+|---|---|
+| a bounded MPMC queue whose waiting threads sleep instead of spinning | `LockFreeQueue` |
+| a queue with a lock-free progress guarantee, and you accept lower throughput | `ScqQueue` (64-bit targets) |
+| the simplest correct queue, for reference or low traffic | `BlockingQueue` |
+| per-thread task deques for your own scheduler | `Worker` / `Stealer` |
+| fork-join parallelism (`join`, `install`, `spawn`) | `ThreadPool` |
+
+### When to use something else
+
+parkring is small and heavily verified, but the established crates are better
+in several places, and the [benchmarks](docs/BENCHMARKS.md) show where:
+
+* **Many producers or consumers at maximum throughput:** crossbeam's
+  `ArrayQueue` is 10 to 17% faster from 2 + 2 threads up, and much faster with
+  many producers feeding one consumer.
+* **A channel API** (`Sender`/`Receiver`, disconnect on drop, `select`): use
+  `std::sync::mpsc`, `crossbeam-channel` or `flume`. parkring's queues are
+  shared by reference and shut down with `close`.
+* **Parallel iterators, or fine-grained `join` at scale:** use Rayon. It
+  matches parkring's pool on coarse work and is faster on very fine-grained
+  joins at 8 threads.
+* **`async` code:** parkring blocks threads; it has no `async` API yet.
+
 ## What the verification found
 
 The tests were written to fail on real bugs, and they did. Each item links to
@@ -89,7 +127,7 @@ Full tables and methodology: [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
 | queue, 8 + 8, `ScqQueue` | 7 | 51 (`LockFreeQueue`) |
 | deque, one thief draining | 85 | 70 (crossbeam-deque) |
 | pool, `fib(32)` on 8 threads | 1.36 ms | 1.36 ms (Rayon) |
-| parked consumer: wake latency / idle CPU | 9.4 µs / 1.7% | 0.3 µs / 100% (crossbeam, spinning) |
+| parked consumer: wake latency / idle CPU | 9.4 µs / 1.7% | 8.8 µs / 1.3% (std `sync_channel`); 0.3 µs / 100% (crossbeam `ArrayQueue`, which never parks) |
 
 The losses are reported as plainly as the wins: crossbeam's queue is faster
 under contention, and SCQ, despite its stronger progress guarantee, is 5–8×

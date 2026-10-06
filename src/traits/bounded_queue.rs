@@ -17,6 +17,34 @@ use crate::error::{
 /// After [`close`](Self::close), every push fails and hands the item back.
 /// Pops keep returning the remaining items and fail only once the queue is
 /// both closed and empty. All blocked threads are woken by `close`.
+///
+/// # Example
+///
+/// Code written against the trait runs on any of the queues:
+///
+/// ```
+/// use parkring::{BlockingQueue, BoundedQueue, LockFreeQueue};
+///
+/// fn produce_then_drain<Q: BoundedQueue<u64>>(queue: &Q) -> u64 {
+///     std::thread::scope(|s| {
+///         let consumer = s.spawn(|| {
+///             let mut sum = 0;
+///             while let Ok(v) = queue.pop() {
+///                 sum += v;
+///             }
+///             sum
+///         });
+///         for i in 1..=100 {
+///             queue.push(i).unwrap();
+///         }
+///         queue.close();
+///         consumer.join().unwrap()
+///     })
+/// }
+///
+/// assert_eq!(produce_then_drain(&LockFreeQueue::new(8)), 5050);
+/// assert_eq!(produce_then_drain(&BlockingQueue::new(8)), 5050);
+/// ```
 pub trait BoundedQueue<T: Send>: Send + Sync {
     /// Pushes `item`, blocking while the queue is full.
     ///

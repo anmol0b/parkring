@@ -7,14 +7,50 @@ use std::error::Error;
 use std::fmt;
 
 /// Returned by `push` when the queue is closed. Carries the rejected item.
+///
+/// ```
+/// use parkring::LockFreeQueue;
+///
+/// let queue = LockFreeQueue::new(4);
+/// queue.close();
+/// let err = queue.push(String::from("late")).unwrap_err();
+/// assert_eq!(err.into_inner(), "late"); // the item comes back, never dropped
+/// ```
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub struct PushError<T>(pub T);
 
 /// Returned by `pop` when the queue is closed and fully drained.
+///
+/// Items pushed before `close` are still delivered; `PopError` means there is
+/// nothing left and nothing more will arrive.
+///
+/// ```
+/// use parkring::{LockFreeQueue, PopError};
+///
+/// let queue = LockFreeQueue::new(4);
+/// queue.push(1).unwrap();
+/// queue.close();
+/// assert_eq!(queue.pop(), Ok(1));
+/// assert_eq!(queue.pop(), Err(PopError));
+/// ```
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct PopError;
 
 /// Returned by `try_push`.
+///
+/// ```
+/// use parkring::{LockFreeQueue, TryPushError};
+///
+/// let queue = LockFreeQueue::new(2);
+/// queue.try_push(1).unwrap();
+/// queue.try_push(2).unwrap();
+/// assert_eq!(queue.try_push(3), Err(TryPushError::Full(3)));
+///
+/// queue.close();
+/// let err = queue.try_push(4).unwrap_err();
+/// assert!(err.is_closed());
+/// assert_eq!(err.into_inner(), 4);
+/// ```
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub enum TryPushError<T> {
     /// The queue is at capacity.
@@ -24,6 +60,15 @@ pub enum TryPushError<T> {
 }
 
 /// Returned by `try_pop`.
+///
+/// ```
+/// use parkring::{LockFreeQueue, TryPopError};
+///
+/// let queue = LockFreeQueue::<u32>::new(4);
+/// assert_eq!(queue.try_pop(), Err(TryPopError::Empty));
+/// queue.close();
+/// assert_eq!(queue.try_pop(), Err(TryPopError::Closed));
+/// ```
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum TryPopError {
     /// The queue holds no items.
@@ -33,6 +78,17 @@ pub enum TryPopError {
 }
 
 /// Returned by `push_timeout`.
+///
+/// ```
+/// use std::time::Duration;
+/// use parkring::{LockFreeQueue, PushTimeoutError};
+///
+/// let queue = LockFreeQueue::new(2);
+/// queue.push(1).unwrap();
+/// queue.push(2).unwrap();
+/// let err = queue.push_timeout(3, Duration::from_millis(10)).unwrap_err();
+/// assert_eq!(err, PushTimeoutError::Timeout(3));
+/// ```
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub enum PushTimeoutError<T> {
     /// The queue stayed full until the timeout elapsed.
@@ -42,6 +98,16 @@ pub enum PushTimeoutError<T> {
 }
 
 /// Returned by `pop_timeout`.
+///
+/// ```
+/// use std::time::Duration;
+/// use parkring::{LockFreeQueue, PopTimeoutError};
+///
+/// let queue = LockFreeQueue::<u32>::new(4);
+/// assert_eq!(queue.pop_timeout(Duration::from_millis(10)), Err(PopTimeoutError::Timeout));
+/// queue.close();
+/// assert_eq!(queue.pop_timeout(Duration::from_millis(10)), Err(PopTimeoutError::Closed));
+/// ```
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum PopTimeoutError {
     /// The queue stayed empty until the timeout elapsed.
