@@ -182,7 +182,9 @@ impl<E: Element> Inner<E> {
         let ptr = buffer.slot(b).load(Relaxed);
         if len > 0 {
             // More than one element: no thief can reach index `b`.
-            // SAFETY: `b` was published by our own push and is now ours.
+            // SAFETY: `b` was published by our own push and is now ours. The
+            // slot is non-null: every published slot holds a pointer from
+            // `E::into_raw`, which returns a `NonNull`.
             return Some(unsafe { E::from_raw(NonNull::new_unchecked(ptr)) });
         }
         // The last element: race the thieves for it on `top`.
@@ -191,7 +193,8 @@ impl<E: Element> Inner<E> {
             .compare_exchange(t, t.wrapping_add(1), SeqCst, Relaxed)
             .is_ok();
         self.bottom.store(b.wrapping_add(1), Release);
-        // SAFETY: winning the CAS on `top` from `t == b` makes index `b` ours.
+        // SAFETY: winning the CAS on `top` from `t == b` makes index `b` ours,
+        // and its slot holds a pointer from `E::into_raw` (a `NonNull`).
         won.then(|| unsafe { E::from_raw(NonNull::new_unchecked(ptr)) })
     }
 
@@ -269,7 +272,8 @@ impl<E: Element> Drop for Inner<E> {
         while distance(b, i) > 0 {
             let ptr = buffer.slot(i).load(Relaxed);
             // SAFETY: indices in `[top, bottom)` were pushed and never taken,
-            // and the current buffer holds every one of them.
+            // and the current buffer holds every one of them, each a pointer
+            // from `E::into_raw` (so non-null).
             drop(unsafe { E::from_raw(NonNull::new_unchecked(ptr)) });
             i = i.wrapping_add(1);
         }

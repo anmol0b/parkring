@@ -198,7 +198,8 @@ impl WorkerThread {
         let mut backoff = Backoff::new();
         let result_b = loop {
             if job_b.latch.probe() {
-                break job_b.into_result();
+                // SAFETY: `probe` observed the latch set with Acquire.
+                break unsafe { job_b.into_result() };
             }
             match self.deque.pop() {
                 Some(job) if job == job_b_ref => {
@@ -341,7 +342,9 @@ impl ThreadPool {
         self.registry.inject(unsafe { job.as_job_ref() });
         job.latch.wait();
         mem::forget(guard);
-        match job.into_result() {
+        // SAFETY: `wait` returned, so it observed the latch set under the
+        // latch's mutex, which orders the result write before this read.
+        match unsafe { job.into_result() } {
             Ok(r) => r,
             Err(payload) => panic::resume_unwind(payload),
         }

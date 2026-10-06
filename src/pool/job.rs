@@ -65,6 +65,9 @@ impl<F: FnOnce() + Send + 'static> HeapJob<F> {
         JobRef(NonNull::from(Box::leak(job)).cast())
     }
 
+    /// # Safety
+    /// `this` must come from [`new_ref`](Self::new_ref) for this `F`, and the
+    /// job must not have run before: running it frees the box.
     unsafe fn execute(this: NonNull<JobHeader>) {
         // SAFETY: `this` came from `new_ref`, and a job runs once.
         let job = unsafe { Box::from_raw(this.cast::<Self>().as_ptr()) };
@@ -123,6 +126,9 @@ where
         JobRef(NonNull::from(self).cast())
     }
 
+    /// # Safety
+    /// `this` must point to a live `StackJob` of this type, reached through a
+    /// `JobRef` that exactly one thread is executing.
     unsafe fn execute(this: NonNull<JobHeader>) {
         // A raw pointer throughout, never `&Self`: the waiter frees the job
         // (its stack frame) as soon as the latch is set, possibly before this
@@ -157,11 +163,16 @@ where
     }
 
     /// Takes the result after the latch has been set.
-    pub(super) fn into_result(self) -> std::thread::Result<R> {
+    ///
+    /// # Safety
+    /// The caller must have observed the latch set (with Acquire ordering,
+    /// as `SpinLatch::probe` and `LockLatch::wait` do). Before that, another
+    /// thread may still be writing the result.
+    pub(super) unsafe fn into_result(self) -> std::thread::Result<R> {
         let result = self.result.with_mut(|r| {
-            // SAFETY: the latch was observed set (Acquire), so the executing
-            // thread's write happens-before this read, and it no longer
-            // touches the job.
+            // SAFETY: per the caller contract the latch was observed set, so
+            // the executing thread's write happens-before this read, and that
+            // thread no longer touches the job.
             unsafe { std::mem::replace(&mut *r, JobResult::None) }
         });
         match result {
