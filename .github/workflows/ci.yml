@@ -53,6 +53,12 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --workspace --all-targets
       - run: cargo test --workspace --doc
+      - name: examples
+        shell: bash
+        run: |
+          for example in pipeline quicksort scheduler shutdown; do
+            cargo run -p parkring --release --example "$example"
+          done
       - name: parked threads use no CPU
         if: runner.os != 'Windows'
         run: cargo test -p parkring --release --test cpu_burn -- --ignored --nocapture
