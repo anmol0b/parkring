@@ -103,7 +103,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           key: loom-${{ matrix.parker }}
-      - run: cargo test -p parkring --release --test loom --test loom_scq --test loom_pool
+      - run: cargo test -p parkring --release --test loom --test loom_scq --test loom_pool --test loom_channel
       - run: cargo test -p parkring --release --lib deque
 
   loom-mutants:
@@ -118,6 +118,8 @@ jobs:
             test: --lib deque::loom_tests::pop_racing_two_steals_never_double_takes
           - mutant: deque_no_steal_fence
             test: --lib deque::loom_tests::pop_racing_two_steals_never_double_takes
+          - mutant: channel_no_disconnect
+            test: --test loom_channel receiver_wakes_when_the_last_sender_drops
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: --cfg loom --cfg parkring_mutant="${{ matrix.mutant }}"
@@ -149,6 +151,7 @@ jobs:
       - run: >
           cargo miri test -p parkring --lib --test drop_semantics --test send_sync
           --test regressions --test linearizability --test proptest_model --test deque --test pool
+          --test channel
 
   bench-smoke:
     name: benchmarks compile
