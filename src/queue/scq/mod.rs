@@ -76,6 +76,7 @@ impl<T> ScqQueue<T> {
     ///
     /// # Panics
     /// If `capacity` is zero or larger than 2^32.
+    #[must_use]
     pub fn new(capacity: usize) -> Self {
         Self::with_start_position(capacity, None)
     }

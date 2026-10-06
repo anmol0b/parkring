@@ -79,6 +79,7 @@ impl<T> LockFreeQueue<T> {
     ///
     /// # Panics
     /// If `capacity` is zero or larger than `2^(usize::BITS - 3)`.
+    #[must_use]
     pub fn new(capacity: usize) -> Self {
         Self::with_start_position(capacity, 0)
     }

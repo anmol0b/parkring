@@ -4,6 +4,33 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - Unreleased
+
+The first release prepared for crates.io. No behaviour changes; the public
+API is trimmed and documented so it can be kept stable.
+
+### Changed
+- **Breaking:** `Backoff` is no longer exported. It was an internal spin
+  helper, not part of the queue API. If you used it, copy the 30 lines from
+  `src/sync/backoff.rs` or use `crossbeam_utils::Backoff`.
+- License: parkring is now licensed under MIT only. Earlier
+  releases were MIT OR Apache-2.0.
+- Constructors and pure accessors (`new`, `len`, `is_empty`, `stealer`,
+  `steal`, `Worker::pop`, `ThreadPool::threads`) are `#[must_use]`.
+- `Worker::with_capacity_and_start` stays hidden and is now documented as
+  test-only; it may change in any release.
+- Missing documentation on a public item is a compile error.
+
+### Added
+- Runnable examples in `examples/`: `pipeline`, `quicksort`, `scheduler` and
+  `shutdown`. CI runs all four on Linux, macOS and Windows.
+- Doc examples for every error type and for `BoundedQueue`.
+- README sections on installing, choosing a type, and when to use
+  crossbeam, Rayon or a channel instead.
+- The README's idle-CPU comparison now includes `std::sync::mpsc::sync_channel`,
+  which parks like parkring does, next to the never-parking crossbeam queue.
+- docs.rs builds for Linux, macOS and Windows.
+
 ## [0.3.0] - 2026-09-29
 
 Renamed to `parkring` and extended from two queues to a small set of

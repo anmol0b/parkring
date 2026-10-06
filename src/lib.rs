@@ -9,6 +9,10 @@
 //! | [`Worker`] / [`Stealer`] | Chase-Lev work-stealing deque |
 //! | [`ThreadPool`], [`join`] | a work-stealing pool built from the pieces above |
 //!
+//! For a channel API, parallel iterators or `async`, use `std::sync::mpsc`,
+//! crossbeam or Rayon instead; the README's "When to use something else"
+//! section says where each one is the better choice.
+//!
 //! Blocked threads spin briefly, then park on a futex (`futex(2)` on Linux and
 //! Android, `__ulock` on macOS) or on std's `Condvar` elsewhere, so an idle
 //! thread does not burn a core. The only dependency is `libc`.
@@ -104,7 +108,6 @@ pub use pool::{ThreadPool, join};
 #[cfg(target_pointer_width = "64")]
 pub use queue::ScqQueue;
 pub use queue::{BlockingQueue, LockFreeQueue};
-pub use sync::Backoff;
 pub use traits::BoundedQueue;
 
 /// Compiles and runs the README's code examples as doctests.
