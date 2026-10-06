@@ -6,39 +6,66 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-Toward 1.0: the API-freeze decisions. See the README's "Stability" section.
+## [1.0.0] - Unreleased
 
-### Changed
-- **Breaking:** `BoundedQueue` is sealed. Only parkring's queues implement it,
-  so methods can be added without a major release.
-- `Worker::with_capacity_and_start`, the hidden test constructor, now exists
-  only with the `__test-hooks` feature and is gone from normal builds.
-- Capacity is documented as "at least the requested capacity"; the exact
-  rounding is no longer part of the contract.
-- `Steal` is `#[must_use]`.
-- The version is `1.0.0-rc.1` while the release is prepared.
+The first stable release. The public API is frozen: from here on, breaking
+changes need a major release. See the README's "Stability" section for what
+that covers, and [UNSAFE.md](docs/UNSAFE.md) for the `unsafe` code and how
+each part is checked.
+
+Upgrading from 0.4 needs no source changes for most users. Code that
+implemented `BoundedQueue` for its own types no longer compiles (the trait is
+sealed); code that built with `default-features = false` must enable `std`.
 
 ### Added
-- A default `std` feature. It is currently required (building without it is a
-  compile error), so a future `no_std` mode will be purely additive.
-- `public-api.txt`, a snapshot of the public API and its auto traits; CI fails
-  when the API changes without the snapshot.
-- docs.rs marks `ScqQueue` as 64-bit only.
-- A "Stability" section in the README: semver, sealed trait, exhaustive
-  enums, capacity, MSRV policy and platforms.
 - `parkring::channel`: bounded multi-producer multi-consumer channels.
   `channel::bounded(n)` returns a cloneable `Sender` and `Receiver` sharing a
   `LockFreeQueue`. Dropping the last handle on one side disconnects the
   channel: receivers drain what was sent and then get `RecvError`; senders get
   their message back in `SendError`. Errors, `try_*` and `*_timeout` variants,
   and iterators follow `std::sync::mpsc` and `crossbeam-channel` naming.
-- loom models for disconnect races (`tests/loom_channel.rs`), run under both
-  parkers, and a `channel_no_disconnect` mutant that CI requires loom to catch.
-- The channel tests also run under Miri in CI.
+- A default `std` feature. It is currently required (building without it is a
+  compile error), so a future `no_std` mode will be purely additive.
+- docs.rs marks `ScqQueue` as 64-bit only.
+- Documentation: a "Stability" section in the README (semver scope, sealed
+  trait, exhaustive enums, capacity, MSRV policy, platforms),
+  [docs/UNSAFE.md](docs/UNSAFE.md), [SECURITY.md](SECURITY.md) and
+  [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Changed
+- **Breaking:** `BoundedQueue` is sealed. Only parkring's queues implement it,
+  so methods can be added in minor releases.
+- Capacity is documented as "at least the requested capacity"; the exact
+  rounding is no longer part of the contract.
+- `Steal` is `#[must_use]`.
+- `Worker::with_capacity_and_start`, the hidden test constructor, exists only
+  with the internal `__test-hooks` feature and is gone from normal builds.
 - The `pipeline` example uses channels, so shutdown follows from dropping
-  senders instead of a hand-written counter.
+  senders.
+
+### Fixed
+- **Soundness:** `join` and `install` keep a job in their own stack frame
+  while another thread may run it. An unexpected unwind in that window (from
+  an internal `expect` or `unreachable!`, not from user closures, whose panics
+  were already caught) would have freed the frame while it was in use.
+  The process now aborts instead, as rayon does. The worker's thread-local is
+  also cleared if a worker unwinds.
+- The test suite builds on 32-bit targets (it named the 64-bit-only
+  `ScqQueue` unconditionally).
+
+### Verification
+- loom models for channel disconnect races, run under both parkers, and a
+  `channel_no_disconnect` mutant that CI requires loom to catch (four mutants
+  in all).
+- Fuzzing with cargo-fuzz: the queues, the deque and the channel against
+  sequential models, on every pull request and nightly.
+- Miri under tree borrows and with the portable parker, in addition to
+  stacked borrows; many schedules per test for the channel and Vyukov queue.
+- ThreadSanitizer for the queue and channel tests.
+- Tests on 32-bit i686 and AArch64 Linux.
+- `public-api.txt`, a snapshot of the public API and its auto traits, checked
+  in CI; cargo-semver-checks against the last release; cargo-deny.
+- Release automation with release-plz; GitHub Actions pinned to commit SHAs.
 
 ## [0.4.0] - 2026-10-06
 
@@ -112,8 +139,8 @@ found along the way.
 
 ## [0.2.0] - 2026-09-28
 
-A production-hardening pass over the original take-home submission. See
-[docs/DESIGN.md](docs/DESIGN.md#9-what-the-original-submission-got-wrong) for
+A production-hardening pass over the first version. See
+[docs/DESIGN.md](docs/DESIGN.md#9-what-the-first-version-got-wrong) for
 the audit that motivated it.
 
 ### Added
@@ -150,5 +177,5 @@ the audit that motivated it.
 
 ## [0.1.0]
 
-Original take-home submission: `BlockingQueue` and `LockFreeQueue` with
+First version: `BlockingQueue` and `LockFreeQueue` with
 criterion benchmarks.

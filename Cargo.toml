@@ -3,14 +3,14 @@ members = [".", "crates/parkring-bench"]
 resolver = "3"
 
 [workspace.package]
-version = "1.0.0-rc.1"
+version = "1.0.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
 repository = "https://github.com/anmol0b/parkring"
 
 [workspace.dependencies]
-parkring = { path = ".", version = "1.0.0-rc.1" }
+parkring = { path = ".", version = "1.0.0" }
 libc = "0.2"
 loom = "0.7"
 proptest = "1"
@@ -62,7 +62,7 @@ description = "Bounded MPMC queues (Vyukov and SCQ), a Chase-Lev work-stealing d
 readme = "README.md"
 keywords = ["mpmc", "queue", "lock-free", "work-stealing", "futex"]
 categories = ["concurrency", "data-structures"]
-exclude = ["assets/", "docs/", ".github/", "crates/", "video/", "fuzz/", "deny.toml", "public-api.txt"]
+exclude = ["assets/", "docs/", ".github/", "crates/", "video/", "fuzz/", "deny.toml", "public-api.txt", "release-plz.toml"]
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu", "aarch64-apple-darwin", "x86_64-pc-windows-msvc"]

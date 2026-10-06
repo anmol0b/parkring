@@ -57,7 +57,7 @@ assert_eq!(pool.install(|| fib(25)), 75_025);
 
 ```toml
 [dependencies]
-parkring = "0.4"
+parkring = "1"
 ```
 
 Runnable examples are in [`examples/`](examples): a multi-stage pipeline,
@@ -97,9 +97,9 @@ in several places, and the [benchmarks](docs/BENCHMARKS.md) show where:
 The tests were written to fail on real bugs, and they did. Each item links to
 the write-up.
 
-* **The original take-home submission** failed spuriously in `try_push`, lost
+* **The first version (0.1)** failed spuriously in `try_push`, lost
   items at non-power-of-two capacities, and spun forever when idle
-  ([DESIGN.md §9](docs/DESIGN.md#9-what-the-original-submission-got-wrong)).
+  ([DESIGN.md §9](docs/DESIGN.md#9-what-the-first-version-got-wrong)).
 * **A capacity-1 overwrite** in the Vyukov ring, found by drop accounting and
   independently by proptest, which shrank it to capacity 1 (DESIGN.md §5).
 * **A lost wakeup loom could not verify**, because loom treats `SeqCst`
@@ -145,7 +145,9 @@ slower than the Vyukov queue on this hardware.
 | | covers |
 |---|---|
 | loom | every interleaving (up to a preemption bound) of the parking protocol, close and channel-disconnect races, both queues' claims, the deque's pop/steal races, and the pool's sleep/wake; four deliberately broken builds must fail |
-| Miri | the `unsafe` code in every component: uninitialised reads, double drops, leaks, aliasing, data races, and the real `futex` system call on Linux |
+| Miri | the `unsafe` code in every component: uninitialised reads, double drops, leaks, aliasing and data races, under both stacked and tree borrows, with both parkers (Linux's `futex` through Miri's emulation of it), and 16 schedules per test for the channel and the Vyukov queue |
+| fuzzing | the queues, the deque (including index wraparound) and the channel against sequential models; one minute per target on every pull request, fifteen minutes nightly |
+| ThreadSanitizer | the queue and channel tests with both parkers (TSan cannot model the deque's standalone fences; loom and Miri cover those) |
 | proptest | each queue against a `VecDeque` model (capacities 1–17), the deque against a `VecDeque` with wrapping indices |
 | concurrency tests | exactly-once delivery and per-producer FIFO across many shapes; per-thief ordering for the deque; repeated runs to flush out rare schedules |
 | `getrusage` | parked queues and an idle pool use about 35–55 µs of CPU over 300 ms |
@@ -158,8 +160,10 @@ cargo +nightly miri test -p parkring --target x86_64-unknown-linux-gnu
 cargo bench -p parkring-bench && cargo run -p parkring-bench --release --example plot
 ```
 
-CI runs all of it on Linux, macOS and Windows, plus the MSRV, docs, a FreeBSD
-check, both parkers under loom, and the loom mutants.
+CI runs all of it on Linux, macOS and Windows, and on 32-bit and AArch64
+Linux, plus the MSRV, docs, a FreeBSD check, both parkers under loom, the loom
+mutants, cargo-deny, semver checks and the public API snapshot. The
+`unsafe` code and its invariants are listed in [UNSAFE.md](docs/UNSAFE.md).
 
 ## Stability
 
@@ -182,7 +186,8 @@ parkring follows [semver](https://semver.org/). From 1.0, these are promises:
 * **MSRV:** Rust 1.85. Raising it is not a breaking change, but only happens
   in a minor release, never a patch, and is noted in the changelog. parkring
   supports at least the last four stable Rust releases.
-* **Platforms:** tested on Linux, macOS and Windows (x86-64 and AArch64);
+* **Platforms:** tested on x86-64 Linux and Windows, AArch64 Linux and
+  macOS, and 32-bit i686 Linux;
   `ScqQueue` exists only on 64-bit targets. Other targets with `std` use the
   portable `Mutex` + `Condvar` parker.
 * Items marked `#[doc(hidden)]` or behind features whose names start with `__`
@@ -196,12 +201,16 @@ parkring follows [semver](https://semver.org/). From 1.0, these are promises:
 * [DEQUE.md](docs/DEQUE.md): the work-stealing deque and its memory orderings.
 * [POOL.md](docs/POOL.md): the thread pool.
 * [BENCHMARKS.md](docs/BENCHMARKS.md): methodology and every measurement.
+* [UNSAFE.md](docs/UNSAFE.md): every `unsafe` block, the invariant it relies
+  on, and which tool checks it.
+* [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md): how to
+  run the checks, and how to report a soundness bug privately.
 
 ## Project history
 
-This crate began as a take-home assignment, published as `bounded_mpmc_queue`:
-a mutex queue and a Vyukov queue. Version 0.2 audited that submission, fixed
-its bugs and added parking, shutdown and the verification suite. Version 0.3
+This crate began as `bounded_mpmc_queue` 0.1: a mutex queue and a Vyukov
+queue. Version 0.2 audited that first version, fixed its bugs and added
+parking, shutdown and the verification suite. Version 0.3
 renamed it to `parkring` and added futex parking, SCQ, the work-stealing deque
 and the pool. The git history shows each step.
 
