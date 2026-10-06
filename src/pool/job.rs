@@ -20,7 +20,12 @@ pub(super) struct JobHeader {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub(super) struct JobRef(NonNull<JobHeader>);
 
-// SAFETY: a `JobRef` is only created from jobs whose closures are `Send`.
+// SAFETY: sending a `JobRef` lets another thread run the job. That is sound
+// because every job type requires it: `HeapJob` needs `F: Send + 'static`;
+// `StackJob` needs `F: Send` and `R: Send` (the result travels back to the
+// waiter) and a `Latch`, which is `Sync` (setter and waiter share it). A
+// `JobRef` is `Copy`, but the scheduler hands each one to exactly one thread
+// (a deque pop or steal, or an injector pop), so a job runs once.
 unsafe impl Send for JobRef {}
 
 // SAFETY: a `JobRef` round-trips through its pointer unchanged.

@@ -16,6 +16,7 @@ use std::cell::Cell;
 use std::fmt;
 use std::panic;
 use std::ptr;
+use std::{mem, process};
 
 use self::job::{HeapJob, JobRef, StackJob};
 use self::latch::{LockLatch, SpinLatch};
@@ -72,12 +73,41 @@ thread_local! {
 }
 
 /// The worker running on this thread, if any.
+///
+/// The `'static` is narrower than it looks: the reference is valid only
+/// while this thread is inside `worker_main`. No caller stores it; each uses
+/// it within the call that fetched it, which runs inside a job on this thread.
 fn current_worker() -> Option<&'static WorkerThread> {
     let ptr = CURRENT.with(Cell::get);
-    // SAFETY: `CURRENT` is non-null only while `worker_main` runs, whose frame
-    // owns the `WorkerThread`; every caller runs inside a job on that thread,
-    // so it cannot outlive the frame.
+    // SAFETY: `CURRENT` is non-null only while `worker_main` runs (it is reset
+    // when `worker_main` returns or unwinds; see `ClearCurrent`), and that
+    // frame owns the `WorkerThread`. Callers run on this thread, inside that
+    // frame, and do not keep the reference past their own call.
     (!ptr.is_null()).then(|| unsafe { &*ptr })
+}
+
+/// Clears `CURRENT` when `worker_main` ends, including by unwinding, so no
+/// later code on this thread can reach the dead `WorkerThread`.
+struct ClearCurrent;
+
+impl Drop for ClearCurrent {
+    fn drop(&mut self) {
+        CURRENT.with(|c| c.set(ptr::null()));
+    }
+}
+
+/// Aborts the process if it is dropped, that is, if the frame that owns it
+/// unwinds. Armed while another thread may hold a reference into this frame
+/// (a `StackJob` it is running): unwinding would free memory still in use,
+/// so aborting is the only sound option. Disarmed with `mem::forget` once
+/// the job is known to be finished. Rayon does the same.
+struct AbortOnUnwind;
+
+impl Drop for AbortOnUnwind {
+    fn drop(&mut self) {
+        eprintln!("parkring: unwinding while another thread uses this stack frame; aborting");
+        process::abort();
+    }
 }
 
 enum Found {
@@ -151,8 +181,13 @@ impl WorkerThread {
         RB: Send,
     {
         let job_b = StackJob::new(b, SpinLatch::new());
-        // SAFETY: we do not return until `job_b` has run (below), so it stays
-        // alive and in place for as long as anyone can hold this reference.
+        // From the push until `job_b` is known to be finished, another thread
+        // may be running it out of this frame: this frame must not unwind.
+        // Panics in `a` and `b` are caught; this guards everything else.
+        let guard = AbortOnUnwind;
+        // SAFETY: we do not return or unwind until `job_b` has run (below), so
+        // it stays alive and in place for as long as anyone can hold this
+        // reference.
         let job_b_ref = unsafe { job_b.as_job_ref() };
         self.push(job_b_ref);
 
@@ -184,6 +219,8 @@ impl WorkerThread {
                 },
             }
         };
+        // `job_b` has finished: nobody else refers to this frame any more.
+        mem::forget(guard);
         match (result_a, result_b) {
             (Ok(ra), Ok(rb)) => (ra, rb),
             (Err(payload), _) | (_, Err(payload)) => panic::resume_unwind(payload),
@@ -196,6 +233,7 @@ impl WorkerThread {
 #[allow(clippy::needless_pass_by_value)]
 fn worker_main(worker: WorkerThread) {
     CURRENT.with(|c| c.set(&raw const worker));
+    let _clear = ClearCurrent;
     let registry = Arc::clone(&worker.registry);
     let mut backoff = Backoff::new();
     loop {
@@ -220,7 +258,6 @@ fn worker_main(worker: WorkerThread) {
             Found::Nothing => backoff.snooze(),
         }
     }
-    CURRENT.with(|c| c.set(ptr::null()));
 }
 
 /// A work-stealing thread pool.
@@ -296,9 +333,14 @@ impl ThreadPool {
             }
         }
         let job = StackJob::new(f, LockLatch::new());
-        // SAFETY: we block on the latch below, so the job outlives any use.
+        // A worker may run the job out of this frame until the latch is set,
+        // so this frame must not unwind in between. See `AbortOnUnwind`.
+        let guard = AbortOnUnwind;
+        // SAFETY: we block on the latch below, and cannot unwind before it is
+        // set, so the job outlives any use.
         self.registry.inject(unsafe { job.as_job_ref() });
         job.latch.wait();
+        mem::forget(guard);
         match job.into_result() {
             Ok(r) => r,
             Err(payload) => panic::resume_unwind(payload),

@@ -5,7 +5,10 @@ use std::sync::PoisonError;
 use crate::sync::{Arc, AtomicUsize, Condvar, Mutex, Ordering};
 
 /// Signals completion of a job.
-pub(super) trait Latch {
+///
+/// `Sync` because `set` runs on the thread that executed the job while the
+/// waiter reads the latch on its own thread.
+pub(super) trait Latch: Sync {
     /// Marks the latch as set.
     ///
     /// Takes a raw pointer, not `&Self`: the waiter may free the latch (it
