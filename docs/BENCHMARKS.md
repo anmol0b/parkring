@@ -1,14 +1,90 @@
 # Benchmarks
 
-Measured on an Apple M4 (4 performance + 6 efficiency cores, 16 GB), macOS 27,
-Rust 1.92, with the machine otherwise in normal desktop use. Reproduce with:
+How parkring compares with the crates you would otherwise use, measured on an
+Apple M4 (4 performance + 6 efficiency cores, 16 GB), macOS 27, Rust 1.92,
+with the machine otherwise in normal desktop use. The losses are reported as
+plainly as the wins.
 
 ```sh
 cargo bench -p parkring-bench            # throughput, latency, deque, pool
-cargo run -p parkring-bench --release --example plot   # rewrites assets/*.svg, prints these tables
+cargo run -p parkring-bench --release --example plot   # rewrites assets/*.svg, prints the tables below
 ```
 
-## Methodology
+## Summary
+
+Million items per second, higher is better, unless the row says otherwise.
+
+| workload | parkring | best alternative | result |
+|---|---|---|---|
+| queue, 1 producer + 1 consumer, capacity 256 | 91 | crossbeam `ArrayQueue`: 80 to 85 | **parkring faster**, 7 to 14% |
+| queue, 1 + 1, capacity 4096 | 127 | crossbeam: 121 | parkring faster, 5% |
+| queue, 2 + 2 up to 16 + 16 | 46 to 62 | crossbeam: 53 to 73 | **crossbeam faster**, 10 to 17% |
+| queue, 8 producers + 1 consumer | 7.4 | crossbeam: 12.8 | **crossbeam faster**, about 70% |
+| `ScqQueue` against `LockFreeQueue` | 7 to 13 | `LockFreeQueue`: 51 to 127 | **5 to 8 times slower** |
+| deque, owner push + pop | 51 | crossbeam-deque: 48 | level |
+| deque, one thief draining | 85 | crossbeam-deque: 70 | **parkring faster**, 21% |
+| deque, 2 or 4 thieves | 10.5 / 5.5 | crossbeam-deque: 10.5 / 5.7 | level |
+| pool, `fib(32)` on 8 threads (time, lower is better) | 1.36 ms | Rayon: 1.36 ms | **level** |
+| pool, `join` at every level, 8 threads (time) | 582 µs | Rayon: 374 µs | **Rayon faster** |
+| waiting consumer: wake latency / CPU while idle | 9.4 µs / 1.7% | `std::sync::mpsc`: 8.8 µs / 1.3% | level |
+| | | crossbeam `ArrayQueue` (spins): 0.3 µs / 100% | crossbeam wakes faster, but burns a core |
+
+### Where parkring wins
+
+* **One producer, one consumer.** `LockFreeQueue` moves 91 million items/s
+  against crossbeam's 80 to 85 at capacity 256 (two runs), and 127 against
+  121 at capacity 4096.
+* **A single thief draining a deque:** 85 against 70 million items/s.
+* **Against a mutex queue** (`BlockingQueue`), `LockFreeQueue` moves 7 to 12
+  times as many items in every contended shape.
+
+### Where it is level
+
+* **The pool and Rayon** on compute-bound work: `fib(32)` with a sequential
+  cutoff takes the same time at 1, 2 and 8 threads, and parkring is faster at
+  4. Both reach 5.3 times sequential speed on 8 threads.
+* **The deque's owner path** (51 against 48), and **2 or 4 thieves**, where
+  both are limited by contention on the same index.
+* **Idle cost against a channel.** A parked parkring consumer wakes in about
+  9 µs and uses under 2% of a core, like `std::sync::mpsc::sync_channel`.
+
+### Where it loses
+
+* **Contention.** crossbeam's `ArrayQueue` is 10 to 17% faster from 2 + 2
+  threads up, and about 70% faster with 8 producers feeding 1 consumer. This
+  is tracked in [issue #12](https://github.com/anmol0b/parkring/issues/12).
+* **`ScqQueue` is slow.** 7 times slower than `LockFreeQueue` with one producer
+  and one consumer, 8 times at 4 + 4. Each item touches two rings and a data
+  cell, and on 10 ARM cores a retried CAS is cheap, so the Vyukov queue's
+  retries cost less than SCQ's extra work. [SCQ.md §7](SCQ.md) has the
+  profile. It is here for its progress guarantee, not for speed.
+* **Very fine-grained `join`.** With a `join` at every level of `fib(25)`,
+  parkring's pool is faster than Rayon at 1 and 4 threads but slower at 8,
+  where its waiting threads spin instead of sleeping. Both are slower than
+  sequential code here: a `join` costs more than a two-instruction leaf.
+* **Raw wake-up speed against a spinning queue.** crossbeam's `ArrayQueue`
+  has no blocking API, so a consumer waiting on it spins. It notices a new
+  item in 0.3 µs, 30 times faster than a parked thread, at the cost of a
+  whole core while idle. Which matters more depends on the application.
+
+### Not measured yet
+
+* `parkring::channel` against `crossbeam-channel` and `flume`.
+* Any x86-64 or Linux machine: every number here is from one Apple M4.
+* Latency percentiles under steady load.
+
+All three are tracked in [issue #13](https://github.com/anmol0b/parkring/issues/13).
+
+## Charts
+
+![MPMC scaling](../assets/mpmc_scaling.svg)
+![Wake latency vs idle CPU](../assets/wake_latency.svg)
+![Pool scaling](../assets/pool_scaling.svg)
+![Capacity sweep](../assets/capacity_sweep.svg)
+![Asymmetric](../assets/asymmetric.svg)
+![SPSC](../assets/spsc.svg)
+
+## What is measured
 
 **Queue throughput** (`crates/parkring-bench/benches/throughput.rs`). For each
 queue and shape, P producer and C consumer threads are spawned once and reused.
@@ -40,16 +116,12 @@ level (pure `join` overhead), and a chunked sum of 32 MB (memory-bound).
 | `blocking` | this crate's `BlockingQueue` |
 | `std_sync_channel` | `std::sync::mpsc::sync_channel`, single-consumer shapes only (its receiver is `!Sync`) |
 
-## Charts
+One more note on the deque numbers: crossbeam-deque with unboxed `u64` measured
+slower than with `Box<u64>` in every run (28 against 48 million items/s); we
+have not investigated why. The 32 MB parallel sum is limited by memory
+bandwidth, so no pool speeds it up.
 
-![MPMC scaling](../assets/mpmc_scaling.svg)
-![Wake latency vs idle CPU](../assets/wake_latency.svg)
-![Pool scaling](../assets/pool_scaling.svg)
-![Capacity sweep](../assets/capacity_sweep.svg)
-![Asymmetric](../assets/asymmetric.svg)
-![SPSC](../assets/spsc.svg)
-
-## Results
+## Full results
 
 ### SPSC
 
@@ -198,37 +270,6 @@ level (pure `join` overhead), and a chunked sum of 32 MB (memory-bound).
 | crossbeam | 0.3 | 3.4 | 5.4 | 100.0% |
 | blocking | 9.8 | 14.0 | 24.8 | 1.4% |
 | std_sync_channel | 8.8 | 12.8 | 18.4 | 1.3% |
-
-## Interpretation
-
-* **`LockFreeQueue` against crossbeam.** Faster with one producer and one
-  consumer (91 against 80 Melem/s at capacity 256; 127 against 121 at 4096),
-  within 10–15% under symmetric contention, and behind in the asymmetric
-  shapes, most of all with 8 producers and 1 consumer. Against the mutex queue
-  it moves 7–12× as many items in every contended shape.
-* **Idle cost is the design's point.** crossbeam's queue has no blocking API,
-  so a waiting consumer must spin: it wakes in 0.3 µs but uses a whole core.
-  Every parking queue here wakes in about 9–10 µs and uses under 2% of a core.
-  The futex parker is about 10% faster to wake than the condvar version
-  (DESIGN.md §4).
-* **`ScqQueue` is slower, by a lot.** 7× slower than `LockFreeQueue` with one
-  producer and one consumer, 8× at 4 + 4. It never retries a claim and never
-  waits on a particular thread, but each item touches two rings and a data
-  cell, and on 10 ARM cores a CAS retry is cheap. `docs/SCQ.md` §7 has the
-  profiling. It is here for its progress guarantee and as a verified
-  implementation of the paper, not for speed.
-* **The deque matches crossbeam-deque.** Owner push/pop: 51 against 48 Melem/s
-  (both boxing each value). One thief draining: 85 against 70. With 2 and 4
-  thieves both are equally limited by contention on `top`. crossbeam with
-  unboxed `u64` measured slower than with `Box<u64>` in every run (28 against
-  48 Melem/s); we have not investigated why.
-* **The pool matches Rayon on compute-bound work.** `fib(32)` with a cutoff:
-  identical at 1, 2 and 8 threads, faster at 4, and 5.3× over sequential at 8
-  threads. With a `join` at every level (`fib(25)`), both pools are slower than
-  sequential code: a join costs more than a two-instruction leaf. Ours is
-  faster than Rayon at 1 and 4 threads there and slower at 8, where its joiners
-  spin rather than park. The 32 MB sum is limited by memory bandwidth, so no
-  pool speeds it up.
 
 ## Caveats
 
