@@ -161,6 +161,33 @@ cargo bench -p parkring-bench && cargo run -p parkring-bench --release --example
 CI runs all of it on Linux, macOS and Windows, plus the MSRV, docs, a FreeBSD
 check, both parkers under loom, and the loom mutants.
 
+## Stability
+
+parkring follows [semver](https://semver.org/). From 1.0, these are promises:
+
+* **The public API** is exactly what `public-api.txt` lists, including which
+  types are `Send`, `Sync`, `Unpin` and unwind-safe. CI fails if it changes
+  without the file being updated, and a change that breaks it needs a major
+  release.
+* **`BoundedQueue` is sealed.** Only parkring's queues implement it, so methods
+  can be added in minor releases.
+* **Error enums and `Steal` are exhaustive**, like `std::sync::mpsc`'s and
+  crossbeam's: you can match every variant. A new kind of failure would get a
+  new type, not a new variant.
+* **Capacity:** a queue or channel holds *at least* the capacity you ask for;
+  `capacity()` reports the real number. How much it rounds up is not part of
+  the contract.
+* **`std` feature:** on by default and currently required. It exists so that
+  a future `no_std` mode can be added without breaking anyone.
+* **MSRV:** Rust 1.85. Raising it is not a breaking change, but only happens
+  in a minor release, never a patch, and is noted in the changelog. parkring
+  supports at least the last four stable Rust releases.
+* **Platforms:** tested on Linux, macOS and Windows (x86-64 and AArch64);
+  `ScqQueue` exists only on 64-bit targets. Other targets with `std` use the
+  portable `Mutex` + `Condvar` parker.
+* Items marked `#[doc(hidden)]` or behind features whose names start with `__`
+  are not public API.
+
 ## Documentation
 
 * [DESIGN.md](docs/DESIGN.md): the Vyukov queue, parking, and closing.

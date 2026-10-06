@@ -83,6 +83,28 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo doc --no-deps -p parkring
 
+  public-api:
+    name: public API matches public-api.txt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # rustdoc's JSON output changes between nightlies; pin the one the
+      # snapshot was made with and bump both together.
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2026-01-04
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-public-api@0.52.0
+      - name: diff against the committed snapshot
+        run: |
+          RUSTUP_TOOLCHAIN=nightly-2026-01-04 cargo public-api -p parkring --omit blanket-impls > public-api.txt
+          git diff --exit-code public-api.txt || {
+            echo "::error::the public API changed; if intended, regenerate public-api.txt (see CONTRIBUTING.md)"
+            exit 1
+          }
+
   loom:
     name: loom (${{ matrix.parker }} parker)
     strategy:

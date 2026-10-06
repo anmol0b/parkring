@@ -289,6 +289,7 @@ impl<E: Element> Drop for Inner<E> {
 
 /// The result of [`Stealer::steal`].
 #[derive(Debug, PartialEq, Eq)]
+#[must_use]
 pub enum Steal<T> {
     /// The deque was empty.
     Empty,
@@ -433,8 +434,9 @@ impl<T: Send> Worker<T> {
     /// and indices near `start`, so tests can force growth and index
     /// wraparound cheaply.
     ///
-    /// Not part of the public API: it exists for this crate's tests and may
-    /// change or disappear in any release.
+    /// Only with the `__test-hooks` feature, which this crate's integration
+    /// tests enable. Not public API: it may change or disappear in any release.
+    #[cfg(any(test, feature = "__test-hooks"))]
     #[doc(hidden)]
     #[must_use]
     pub fn with_capacity_and_start(capacity: usize, start: usize) -> Self {
@@ -483,7 +485,6 @@ impl<T: Send> Default for Worker<T> {
 
 impl<T: Send> Stealer<T> {
     /// Steals the oldest value.
-    #[must_use]
     pub fn steal(&self) -> Steal<T> {
         self.raw.steal().map(|b| *b)
     }

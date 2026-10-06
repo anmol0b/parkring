@@ -102,6 +102,14 @@
 //! See `docs/DESIGN.md` in the repository for the memory-ordering argument
 //! and how it is verified with loom and Miri.
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
+#[cfg(not(feature = "std"))]
+compile_error!(
+    "parkring currently requires its `std` feature, which is on by default. \
+     The feature exists so that a future `no_std` mode only adds support."
+);
+
 pub mod channel;
 mod deque;
 mod error;
@@ -117,6 +125,7 @@ pub use error::{
 };
 pub use pool::{ThreadPool, join};
 #[cfg(target_pointer_width = "64")]
+#[cfg_attr(docsrs, doc(cfg(target_pointer_width = "64")))]
 pub use queue::ScqQueue;
 pub use queue::{BlockingQueue, LockFreeQueue};
 pub use traits::BoundedQueue;

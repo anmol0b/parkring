@@ -27,8 +27,10 @@ use crate::utils::CachePadded;
 /// * **Shutdown:** [`close`](Self::close) rejects further pushes, wakes every
 ///   parked thread, and lets consumers drain what is left.
 ///
-/// Capacity is rounded up to the next power of two (minimum 2) so slot
-/// indexing is a bitwise AND.
+/// The queue holds at least the requested capacity. Today it rounds up to a
+/// power of two, with a minimum of 2, so slot indexing is a bitwise AND; that
+/// rounding is an implementation detail, and [`capacity`](Self::capacity)
+/// reports the real size.
 ///
 /// # Progress guarantee
 ///
@@ -74,8 +76,7 @@ pub struct LockFreeQueue<T> {
 }
 
 impl<T> LockFreeQueue<T> {
-    /// Creates a queue holding at least `capacity` items, rounded up to the
-    /// next power of two, with a minimum of 2.
+    /// Creates a queue holding at least `capacity` items.
     ///
     /// # Panics
     /// If `capacity` is zero or larger than `2^(usize::BITS - 3)`.
@@ -111,7 +112,8 @@ impl<T> LockFreeQueue<T> {
         }
     }
 
-    /// The number of slots: a power of two, at least 2.
+    /// The number of items the queue holds when full: at least the capacity
+    /// requested in [`new`](Self::new).
     #[inline]
     pub fn capacity(&self) -> usize {
         self.mask + 1
