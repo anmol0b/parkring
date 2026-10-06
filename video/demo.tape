@@ -27,7 +27,7 @@ Show
 
 Type "# parkring: lock-free queues, a work-stealing deque and a thread pool in Rust."
 Enter
-Type "# It started as a take-home assignment. Here is how it is checked."
+Type "# Each one is checked by tools built to find concurrency bugs. Here is how."
 Enter
 Sleep 2500ms
 
