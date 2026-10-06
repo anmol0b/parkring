@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-plz
+  cancel-in-progress: false
+
+jobs:
+  # Publishes any version in Cargo.toml that is not on crates.io yet, then tags
+  # it and creates the GitHub release. Does nothing until the maintainer adds
+  # the CARGO_REGISTRY_TOKEN secret.
+  release:
+    name: publish unreleased versions
+    if: github.repository == 'anmol0b/parkring'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+    steps:
+      - name: skip without a crates.io token
+        if: env.CARGO_REGISTRY_TOKEN == ''
+        run: echo "::notice::CARGO_REGISTRY_TOKEN is not set; nothing is published"
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: env.CARGO_REGISTRY_TOKEN != ''
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # master
+        if: env.CARGO_REGISTRY_TOKEN != ''
+        with:
+          toolchain: stable
+      - uses: release-plz/action@b8d6b54b02889ff2ae2bb82e8b57c3a8fc1683a5 # v0.5.139
+        if: env.CARGO_REGISTRY_TOKEN != ''
+        with:
+          command: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Opens or updates the release pull request.
+  release-pr:
+    name: release pull request
+    if: github.repository == 'anmol0b/parkring'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # master
+        with:
+          toolchain: stable
+      - uses: release-plz/action@b8d6b54b02889ff2ae2bb82e8b57c3a8fc1683a5 # v0.5.139
+        with:
+          command: release-pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

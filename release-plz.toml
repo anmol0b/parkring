@@ -1,0 +1,19 @@
+# release-plz: https://release-plz.dev
+#
+# On every push to main, release-plz opens (or updates) a release pull request
+# that bumps the version from the conventional-commit history. Merging it
+# publishes to crates.io, tags the commit and creates a GitHub release.
+# Publishing needs a CARGO_REGISTRY_TOKEN repository secret; without one,
+# nothing is published.
+
+[workspace]
+# CHANGELOG.md is written by hand; release-plz must not rewrite it.
+changelog_update = false
+git_release_enable = true
+git_tag_name = "v{{ version }}"
+# Refuse to publish if `cargo semver-checks` finds an undeclared break.
+semver_check = true
+
+[[package]]
+name = "parkring-bench"
+release = false

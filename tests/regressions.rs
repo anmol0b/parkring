@@ -1,4 +1,4 @@
-//! Regression tests for bugs in the original submission. Each one failed (or
+//! Regression tests for bugs in the first version. Each one failed (or
 //! hung) against commit 76feaa4.
 
 mod common;
