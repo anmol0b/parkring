@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/anmol0b/parkring/actions/workflows/ci.yml/badge.svg)](https://github.com/anmol0b/parkring/actions/workflows/ci.yml)
 ![MSRV 1.85](https://img.shields.io/badge/MSRV-1.85-blue)
-![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
 Concurrency primitives in Rust, each implemented from its paper, checked with
 the [loom](https://docs.rs/loom) model checker and Miri, and benchmarked
@@ -152,5 +152,4 @@ crates/parkring-bench/  benchmarks and chart generation (unpublished)
 
 ## License
 
-Licensed under either of [Apache License 2.0](LICENSE-APACHE) or
-[MIT license](LICENSE-MIT), at your option.
+Licensed under the [MIT license](LICENSE).
