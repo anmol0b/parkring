@@ -1,5 +1,8 @@
 name: Release
 
+# Opt-in: does nothing until the repository variable RELEASE_PLZ is "true".
+# Also needed: Settings > Actions > General > "Allow GitHub Actions to create
+# and approve pull requests", and a CARGO_REGISTRY_TOKEN secret to publish.
 on:
   push:
     branches: [main]
@@ -17,7 +20,7 @@ jobs:
   # the CARGO_REGISTRY_TOKEN secret.
   release:
     name: publish unreleased versions
-    if: github.repository == 'anmol0b/parkring'
+    if: github.repository == 'anmol0b/parkring' && vars.RELEASE_PLZ == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -45,7 +48,7 @@ jobs:
   # Opens or updates the release pull request.
   release-pr:
     name: release pull request
-    if: github.repository == 'anmol0b/parkring'
+    if: github.repository == 'anmol0b/parkring' && vars.RELEASE_PLZ == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write

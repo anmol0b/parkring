@@ -46,8 +46,8 @@ sealed); code that built with `default-features = false` must enable `std`.
 ### Fixed
 - **Soundness:** `join` and `install` keep a job in their own stack frame
   while another thread may run it. An unexpected unwind in that window (from
-  an internal `expect` or an allocation failure, not from user closures, whose
-  panics were already caught) would have freed the frame while it was in use.
+  an internal `expect` or `unreachable!`, not from user closures, whose panics
+  were already caught) would have freed the frame while it was in use.
   The process now aborts instead, as rayon does. The worker's thread-local is
   also cleared if a worker unwinds.
 - The test suite builds on 32-bit targets (it named the 64-bit-only

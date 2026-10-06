@@ -3,15 +3,18 @@
 # On every push to main, release-plz opens (or updates) a release pull request
 # that bumps the version from the conventional-commit history. Merging it
 # publishes to crates.io, tags the commit and creates a GitHub release.
-# Publishing needs a CARGO_REGISTRY_TOKEN repository secret; without one,
-# nothing is published.
+# The workflow is opt-in (repository variable RELEASE_PLZ = "true"), release
+# pull requests need Actions to be allowed to create them, and publishing
+# needs a CARGO_REGISTRY_TOKEN secret. See .github/workflows/release-plz.yml.
 
 [workspace]
 # CHANGELOG.md is written by hand; release-plz must not rewrite it.
 changelog_update = false
 git_release_enable = true
 git_tag_name = "v{{ version }}"
-# Refuse to publish if `cargo semver-checks` finds an undeclared break.
+# Run cargo-semver-checks when preparing a release pull request, so the
+# proposed version bump matches the API changes. (CI's semver job is the gate
+# on every pull request.)
 semver_check = true
 
 [[package]]

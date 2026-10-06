@@ -186,7 +186,8 @@ parkring follows [semver](https://semver.org/). From 1.0, these are promises:
 * **MSRV:** Rust 1.85. Raising it is not a breaking change, but only happens
   in a minor release, never a patch, and is noted in the changelog. parkring
   supports at least the last four stable Rust releases.
-* **Platforms:** tested on Linux, macOS and Windows (x86-64 and AArch64);
+* **Platforms:** tested on x86-64 Linux and Windows, AArch64 Linux and
+  macOS, and 32-bit i686 Linux;
   `ScqQueue` exists only on 64-bit targets. Other targets with `std` use the
   portable `Mutex` + `Condvar` parker.
 * Items marked `#[doc(hidden)]` or behind features whose names start with `__`
