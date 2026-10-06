@@ -15,9 +15,11 @@ use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
 use common::{BenchQueue, Crossbeam, StdChannel};
+use std::hint::black_box;
+
 use criterion::measurement::WallTime;
 use criterion::{
-    BenchmarkGroup, BenchmarkId, Criterion, Throughput, black_box, criterion_group, criterion_main,
+    BenchmarkGroup, BenchmarkId, Criterion, Throughput, criterion_group, criterion_main,
 };
 use parkring::{BlockingQueue, LockFreeQueue, ScqQueue};
 
