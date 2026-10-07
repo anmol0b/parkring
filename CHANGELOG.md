@@ -6,7 +6,7 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [1.0.0] - Unreleased
+## [1.0.0] - 2026-10-07
 
 The first stable release. The public API is frozen: from here on, breaking
 changes need a major release. See the README's "Stability" section for what

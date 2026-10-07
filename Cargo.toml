@@ -58,9 +58,9 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "Bounded MPMC queues (Vyukov and SCQ), a Chase-Lev work-stealing deque and a work-stealing thread pool, with futex-based parking, verified with loom and Miri."
+description = "Bounded MPMC channels and queues (Vyukov and SCQ), a Chase-Lev work-stealing deque and a work-stealing thread pool, with futex-based parking. Checked with loom, Miri and fuzzing."
 readme = "README.md"
-keywords = ["mpmc", "queue", "lock-free", "work-stealing", "futex"]
+keywords = ["mpmc", "channel", "queue", "lock-free", "work-stealing"]
 categories = ["concurrency", "data-structures"]
 exclude = ["assets/", "docs/", ".github/", "crates/", "video/", "fuzz/", "deny.toml", "public-api.txt", "release-plz.toml"]
 
