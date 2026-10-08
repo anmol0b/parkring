@@ -16,7 +16,15 @@ const blank = (wait = 1): Line => line("", "text", { wait });
 /** Opens cold on a real failure: the deque with its pop fence removed. Output captured from a real run. */
 export const coldOpen = {
   session: {
-    before: [promptLine(`export RUSTFLAGS='--cfg loom --cfg parkring_mutant="deque_no_pop_fence"'`)],
+    before: [
+      promptLine(`grep -n -B1 "fence(SeqCst)" src/deque/mod.rs`),
+      line(`173-        #[cfg(not(parkring_mutant = "deque_no_pop_fence"))]`, "muted"),
+      line("174:        fence(SeqCst);"),
+      line("--", "muted"),
+      line(`207-        #[cfg(not(parkring_mutant = "deque_no_steal_fence"))]`, "muted"),
+      line("208:        fence(SeqCst);"),
+      promptLine(`export RUSTFLAGS='--cfg loom --cfg parkring_mutant="deque_no_pop_fence"'`),
+    ],
     command: "cargo test -r --lib pop_racing",
     output: [
       line("    Finished `release` profile [optimized + debuginfo] target(s) in 2.00s", "muted", { wait: 10 }),
@@ -164,7 +172,11 @@ export const breaking: Shot[] = [
   },
   {
     session: {
-      before: [line("# the pool's latch, before it took raw pointers", "dim")],
+      before: [
+        line("# the pool's latch, before it took raw pointers", "dim"),
+        promptLine("git switch --detach ab5fef0"),
+        line("HEAD is now at ab5fef0 bench/docs: deque vs crossbeam-deque, pool vs Rayon, final charts, 0.3 README", "muted"),
+      ],
       command: "cargo +nightly miri test --test pool",
       output: [
         line("     Running tests/pool.rs (target/miri/aarch64-apple-darwin/debug/deps/pool-8c2f61d0e4b9a7c5)", "muted", {
@@ -232,6 +244,7 @@ export const results = {
 export const losses = {
   lines: [
     { text: "crossbeam is faster under contention.", detail: "8 producers and 8 consumers: 57 vs 51 million items / s" },
+    { text: "rayon is faster at very fine-grained join.", detail: "a join at every level of fib(25), 8 threads: 374 vs 582 µs" },
     { text: "SCQ is 5 to 8x slower on this machine.", detail: "it's here for the lock-free guarantee. i profiled why." },
   ],
   caption: "and where it loses.",

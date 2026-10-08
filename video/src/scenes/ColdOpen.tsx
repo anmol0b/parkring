@@ -12,7 +12,7 @@ export const COLD_OPEN_DURATION = tl.done + 45;
 /** No title: the video opens on a real loom failure. */
 export const ColdOpen: React.FC<{ duration: number }> = ({ duration }) => (
   <Scene duration={duration}>
-    <Terminal session={coldOpen.session} seed="cold" />
+    <Terminal session={coldOpen.session} seed="cold" fit />
     <Caption text={coldOpen.caption} start={hitAt + 18} />
   </Scene>
 );

@@ -25,7 +25,7 @@ export const Breaking: React.FC<{ duration: number }> = ({ duration }) => (
   <Scene duration={duration}>
     {shots.map(({ shot, seed, thenAt, frames }, i) => (
       <Sequence key={seed} from={starts[i]} durationInFrames={frames}>
-        <Terminal session={shot.session} seed={seed} />
+        <Terminal session={shot.session} seed={seed} fit />
         <Caption text={shot.caption} start={2} then={shot.then} thenAt={thenAt} />
       </Sequence>
     ))}

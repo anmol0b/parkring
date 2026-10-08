@@ -130,7 +130,9 @@ export const Terminal: React.FC<{
   seed: string;
   top?: number;
   height?: number;
-}> = ({ session, start = 6, seed, top = 56, height = 790 }) => {
+  /** Shrink the window to the rows the session ends with, so a short session isn't a big empty box. */
+  fit?: boolean;
+}> = ({ session, start = 6, seed, top = 56, height: maxHeight = 790, fit = false }) => {
   const frame = useCurrentFrame();
   const tl = timeline(session, start, seed);
   const typed = session.recalled ? (frame >= start ? Infinity : 0) : typedCount(tl.keys, frame);
@@ -139,12 +141,24 @@ export const Terminal: React.FC<{
 
   const width = 1920 - 2 * 72;
   const cols = Math.floor((width - 2 * PAD_X) / CHAR_W);
-  const maxRows = Math.floor((height - BAR - 2 * PAD_Y) / (FONT * LINE_H));
+  const rowsOf = (len: number) => Math.max(1, Math.ceil(len / cols));
+  // Rows on screen once the session is over: history, command, every output line, the next prompt.
+  const finalRows =
+    (session.before ?? []).reduce((n, l) => n + rowsOf(text(l).length), 0) +
+    rowsOf(cwd.length + 3 + session.command.length) +
+    session.output.reduce((n, l) => n + rowsOf(text(l).length), 0) +
+    1;
+  const rowH = FONT * LINE_H;
+  const height = fit ? Math.min(maxHeight, Math.ceil(BAR + 6 + PAD_Y + finalRows * rowH + 8)) : maxHeight;
+  const fitted = fit && height < maxHeight;
+  const maxRows = fitted ? finalRows : Math.floor((height - BAR - 2 * PAD_Y) / rowH);
+  // A shrunk window sits in the middle of the space the full-size one would take.
+  const y = fitted ? top + Math.round((maxHeight - height) / 2) : top;
 
   type Row = { key: string; rows: number; node: React.ReactNode };
   const rows: Row[] = [];
   const push = (key: string, len: number, node: React.ReactNode) =>
-    rows.push({ key, rows: Math.max(1, Math.ceil(len / cols)), node });
+    rows.push({ key, rows: rowsOf(len), node });
 
   session.before?.forEach((l, i) => push(`b${i}`, text(l).length, text(l) === "" ? "\u00a0" : <Segs segs={l.segs} />));
   push(
@@ -193,7 +207,7 @@ export const Terminal: React.FC<{
     <div
       style={{
         position: "absolute",
-        top,
+        top: y,
         left: 72,
         width,
         height,

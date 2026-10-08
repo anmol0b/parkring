@@ -30,7 +30,7 @@ export const BUILT_DURATION = tl.done + 4 + 5 * 13 + 45;
 
 export const Built: React.FC<{ duration: number }> = ({ duration }) => (
   <Scene duration={duration}>
-    <Terminal session={session} seed="built" />
+    <Terminal session={session} seed="built" fit />
     <Caption text={built.caption} start={tl.done} then={built.then} thenAt={tl.done + 4 + 3 * 13} />
   </Scene>
 );
